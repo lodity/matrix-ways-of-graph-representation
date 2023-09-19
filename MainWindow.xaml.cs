@@ -1,4 +1,5 @@
-﻿using CDM_Lab_3._1.Utils;
+﻿using CDM_Lab_3._1.Models;
+using CDM_Lab_3._1.Utils;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,17 +11,23 @@ namespace CDM_Lab_3._1
     /// </summary>
     public partial class MainWindow : Window
     {
-        short edgeCount = 0;
-        short[,] AdjacencyTable;
+        private GraphType CurrentGraphType { get => (GraphType)ComboBoxGraphType.SelectedIndex; }
+        private short edgeCount;
+        private short[,] AdjacencyTable;
         public MainWindow()
         {
             InitializeComponent();
+            edgeCount = 0;
         }
         private void ClearGrid(Grid grid)
         {
             grid.Children.Clear();
             grid.RowDefinitions.Clear();
             grid.ColumnDefinitions.Clear();
+        }
+        private void ComboBoxGraphType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ClearGrid(GridIncidenceTable);
         }
         private void TextBoxNodesCount_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
@@ -29,7 +36,18 @@ namespace CDM_Lab_3._1
         private void TextBoxAdjacencyTable_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
             e.Handled = TextUtils.IsTextSatisfiesRegex(e.Text, new Regex("[^0-1]"));
-            UpdateIncidenceTable(sender, short.Parse(e.Text));
+        }
+        private void TextBoxAdjacencyTable_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (((TextBox)(sender)).Text == "")
+            {
+                ((TextBox)(sender)).Text = "0";
+            }
+        }
+        private void TextBoxAdjacencyTable_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            string senderText = ((TextBox)(sender)).Text;
+            UpdateIncidenceTable(sender, senderText != "" ? short.Parse(senderText) : (short)0);
         }
 
         private void UpdateIncidenceTable(object textBoxSender, short newTableValue)
@@ -44,6 +62,10 @@ namespace CDM_Lab_3._1
             foreach (var item in AdjacencyTable)
             {
                 if (item == 1) edgeCount++;
+            }
+            if (edgeCount == 0)
+            {
+                return;
             }
             int nodeCount = GridAdjacencyTable.RowDefinitions.Count - 1;
             for (short i = 0; i < nodeCount + 1; i++)
@@ -64,11 +86,11 @@ namespace CDM_Lab_3._1
                 GridIncidenceTable.Children.Add(label);
             }
 
-            for (int i = 0; i < nodeCount; i++)
+            for (int x = 0; x < nodeCount; x++)
             {
-                for (int j = 0; j < nodeCount; j++)
+                for (int y = 0; y < nodeCount; y++)
                 {
-                    if (AdjacencyTable[i, j] == 1)
+                    if (AdjacencyTable[x, y] == 1)
                     {
                         GridIncidenceTable.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32, GridUnitType.Pixel) });
                         int indexLastColumn = GridIncidenceTable.ColumnDefinitions.Count - 1;
@@ -88,17 +110,38 @@ namespace CDM_Lab_3._1
                             else
                             {
                                 TextBox textBox = new();
-                                if (i == j && i == k)
+                                switch (CurrentGraphType)
                                 {
-                                    textBox.Text = "2";
-                                    isLoop = true;
+                                    case GraphType.Undirected:
+                                        {
+                                            if (x == y && x == k - 1)
+                                            {
+                                                textBox.Text = "2";
+                                                isLoop = true;
+                                            }
+                                            else if (!isLoop && (k - 1 == x || k - 1 == y))
+                                                textBox.Text = "1";
+                                            else
+                                                textBox.Text = "0";
+                                        }
+                                        break;
+                                    case GraphType.Directed:
+                                        {
+                                            if (x == y && x == k - 1)
+                                            {
+                                                textBox.Text = "2";
+                                                isLoop = true;
+                                            }
+                                            else if (!isLoop && k - 1 == x)
+                                                textBox.Text = "1";
+                                            else if (!isLoop && k - 1 == y)
+                                                textBox.Text = "-1";
+                                            else
+                                                textBox.Text = "0";
+                                        }
+                                        break;
                                 }
-                                else if (!isLoop && (k - 1 == i || k - 1 == j))
-                                    textBox.Text = "1";
-                                else
-                                    textBox.Text = "0";
-
-                                textBox.MaxLength = 1;
+                                textBox.MaxLength = 2;
                                 Grid.SetRow(textBox, k);
                                 Grid.SetColumn(textBox, indexLastColumn);
                                 GridIncidenceTable.Children.Add(textBox);
@@ -145,6 +188,8 @@ namespace CDM_Lab_3._1
                             MaxLength = 1
                         };
                         textBox.PreviewTextInput += TextBoxAdjacencyTable_PreviewTextInput;
+                        textBox.TextChanged += TextBoxAdjacencyTable_TextChanged;
+                        textBox.LostFocus += TextBoxAdjacencyTable_LostFocus;
                         Grid.SetRow(textBox, i);
                         Grid.SetColumn(textBox, j);
                         GridAdjacencyTable.Children.Add(textBox);
