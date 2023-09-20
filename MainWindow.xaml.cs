@@ -1,5 +1,7 @@
 ﻿using CDM_Lab_3._1.Models;
 using CDM_Lab_3._1.Utils;
+using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -59,20 +61,29 @@ namespace CDM_Lab_3._1
 
             AdjacencyTable[indexI, indexJ] = newTableValue;
             edgeCount = 0;
-            foreach (var item in AdjacencyTable)
+            int nodeCount = GridAdjacencyTable.RowDefinitions.Count - 1;
+            List<Tuple<int, int>> listOfIndexes = new();
+
+            for (int x = 0; x < nodeCount; x++)
             {
-                if (item == 1) edgeCount++;
+                for (int y = 0; y < nodeCount; y++)
+                {
+                    if (AdjacencyTable[x, y] == 1 && ((!listOfIndexes.Contains(new Tuple<int, int>(y, x)) || x == y) || CurrentGraphType == GraphType.Directed))
+                    {
+                        listOfIndexes.Add(new Tuple<int, int>(x, y));
+                        edgeCount++;
+                    }
+                }
             }
+
             if (edgeCount == 0)
             {
                 return;
             }
-            int nodeCount = GridAdjacencyTable.RowDefinitions.Count - 1;
             for (short i = 0; i < nodeCount + 1; i++)
             {
                 GridIncidenceTable.RowDefinitions.Add(new RowDefinition { Height = new GridLength(24, GridUnitType.Pixel) });
             }
-
             GridIncidenceTable.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32, GridUnitType.Pixel) });
 
             for (int i = 1; i < nodeCount + 1; i++)
@@ -90,7 +101,7 @@ namespace CDM_Lab_3._1
             {
                 for (int y = 0; y < nodeCount; y++)
                 {
-                    if (AdjacencyTable[x, y] == 1)
+                    if (AdjacencyTable[x, y] == 1 && ((!listOfIndexes.Contains(new Tuple<int, int>(y, x)) || x == y) || CurrentGraphType == GraphType.Directed))
                     {
                         GridIncidenceTable.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32, GridUnitType.Pixel) });
                         int indexLastColumn = GridIncidenceTable.ColumnDefinitions.Count - 1;
@@ -120,7 +131,9 @@ namespace CDM_Lab_3._1
                                                 isLoop = true;
                                             }
                                             else if (!isLoop && (k - 1 == x || k - 1 == y))
+                                            {
                                                 textBox.Text = "1";
+                                            }
                                             else
                                                 textBox.Text = "0";
                                         }
