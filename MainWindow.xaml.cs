@@ -34,6 +34,21 @@ namespace CDM_Lab_3._1
         {
             e.Handled = TextUtils.IsTextSatisfiesRegex(e.Text);
         }
+        private void TextBoxAdjacencyTable_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (short.Parse(((TextBox)sender).Text) >= 0)
+            {
+                ((TextBox)sender).Text = (int.Parse(((TextBox)sender).Text) + 1).ToString();
+            }
+        }
+        private void TextBoxAdjacencyTable_MouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        {
+            TextBox textBoxSender = (TextBox)sender;
+            if (textBoxSender.Text != "0" || e.Delta > 0)
+            {
+                textBoxSender.Text = (int.Parse(textBoxSender.Text) + (e.Delta > 0 ? 1 : -1)).ToString();
+            }
+        }
         private void TextBoxAdjacencyTable_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
             e.Handled = TextUtils.IsTextSatisfiesRegex(e.Text);
@@ -219,6 +234,8 @@ namespace CDM_Lab_3._1
                         textBox.PreviewTextInput += TextBoxAdjacencyTable_PreviewTextInput;
                         textBox.TextChanged += TextBoxAdjacencyTable_TextChanged;
                         textBox.LostFocus += TextBoxAdjacencyTable_LostFocus;
+                        textBox.MouseDoubleClick += TextBoxAdjacencyTable_MouseDoubleClick;
+                        textBox.MouseWheel += TextBoxAdjacencyTable_MouseWheel;
                         Grid.SetRow(textBox, i);
                         Grid.SetColumn(textBox, j);
                         GridAdjacencyTable.Children.Add(textBox);
