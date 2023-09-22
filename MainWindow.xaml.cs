@@ -30,28 +30,26 @@ namespace CDM_Lab_3._1
         {
             ClearGrid(GridIncidenceTable);
         }
-        private void TextBoxNodesCount_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        private void OnlyNumbersValidation_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
             e.Handled = TextUtils.IsTextSatisfiesRegex(e.Text);
         }
         private void TextBoxAdjacencyTable_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            if (short.Parse(((TextBox)sender).Text) >= 0)
+            short textBoxSenderText = short.Parse(((TextBox)sender).Text);
+            if (textBoxSenderText >= 0 && textBoxSenderText < 9)
             {
-                ((TextBox)sender).Text = (int.Parse(((TextBox)sender).Text) + 1).ToString();
+                ((TextBox)sender).Text = (textBoxSenderText + 1).ToString();
             }
         }
         private void TextBoxAdjacencyTable_MouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
         {
             TextBox textBoxSender = (TextBox)sender;
-            if (textBoxSender.Text != "0" || e.Delta > 0)
+            short textBoxSenderText = short.Parse(textBoxSender.Text);
+            if (((textBoxSenderText > 0 || e.Delta > 0) && textBoxSenderText < 9) || (textBoxSenderText == 9 && e.Delta < 0))
             {
                 textBoxSender.Text = (int.Parse(textBoxSender.Text) + (e.Delta > 0 ? 1 : -1)).ToString();
             }
-        }
-        private void TextBoxAdjacencyTable_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
-        {
-            e.Handled = TextUtils.IsTextSatisfiesRegex(e.Text);
         }
         private void TextBoxAdjacencyTable_LostFocus(object sender, RoutedEventArgs e)
         {
@@ -62,21 +60,20 @@ namespace CDM_Lab_3._1
         }
         private void TextBoxAdjacencyTable_TextChanged(object sender, TextChangedEventArgs e)
         {
-            string senderText = ((TextBox)(sender)).Text;
-            UpdateIncidenceTable(sender, senderText != "" ? short.Parse(senderText) : (short)0);
+            TextBox textBoxSender = ((TextBox)sender);
+            int indexX = (int.Parse(textBoxSender.Name.Split('_')[1]) - 1);
+            int indexY = (int.Parse(textBoxSender.Name.Split('_')[2]) - 1);
+            AdjacencyTable[indexX, indexY] = textBoxSender.Text != "" ? short.Parse(textBoxSender.Text) : (short)0;
+
+            UpdateIncidenceTable();
         }
 
-        private void UpdateIncidenceTable(object textBoxSender, short newTableValue)
+        private void UpdateIncidenceTable()
         {
             ClearGrid(GridIncidenceTable);
 
-            short indexI = (short)(short.Parse(((TextBox)(textBoxSender)).Name.Split('_')[1]) - 1);
-            short indexJ = (short)(short.Parse(((TextBox)(textBoxSender)).Name.Split('_')[2]) - 1);
-
-            AdjacencyTable[indexI, indexJ] = newTableValue;
             int nodeCount = GridAdjacencyTable.RowDefinitions.Count - 1;
-            short[,] AdjacencyTableCopy = new short[indexI, indexJ];
-            AdjacencyTableCopy = (short[,])AdjacencyTable.Clone();
+            short[,] AdjacencyTableCopy = (short[,])AdjacencyTable.Clone();
             edgeCount = 0;
             List<Tuple<int, int>> listOfIndexes = new();
 
@@ -207,37 +204,37 @@ namespace CDM_Lab_3._1
             {
                 GridAdjacencyTable.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32, GridUnitType.Pixel) });
             }
-            for (short i = 0; i < nodeCount + 1; i++)
+            for (short x = 0; x < nodeCount + 1; x++)
             {
-                for (short j = 0; j < nodeCount + 1; j++)
+                for (short y = 0; y < nodeCount + 1; y++)
                 {
-                    if (i == 0 && j == 0) continue;
-                    if (i == 0 || j == 0)
+                    if (x == 0 && y == 0) continue;
+                    if (x == 0 || y == 0)
                     {
                         Label label = new()
                         {
-                            Content = $"x{((i == 0) ? j : i)}"
+                            Content = $"x{((x == 0) ? y : x)}"
                         };
-                        Grid.SetRow(label, i);
-                        Grid.SetColumn(label, j);
+                        Grid.SetRow(label, x);
+                        Grid.SetColumn(label, y);
                         GridAdjacencyTable.Children.Add(label);
                     }
                     else
                     {
-                        AdjacencyTable[i - 1, j - 1] = 0;
+                        AdjacencyTable[x - 1, y - 1] = 0;
                         TextBox textBox = new()
                         {
-                            Name = $"textBoxAdjacencyTable_{i}_{j}",
+                            Name = $"textBoxAdjacencyTable_{x}_{y}",
                             Text = "0",
                             MaxLength = 1
                         };
-                        textBox.PreviewTextInput += TextBoxAdjacencyTable_PreviewTextInput;
+                        textBox.PreviewTextInput += OnlyNumbersValidation_PreviewTextInput;
                         textBox.TextChanged += TextBoxAdjacencyTable_TextChanged;
                         textBox.LostFocus += TextBoxAdjacencyTable_LostFocus;
                         textBox.MouseDoubleClick += TextBoxAdjacencyTable_MouseDoubleClick;
                         textBox.MouseWheel += TextBoxAdjacencyTable_MouseWheel;
-                        Grid.SetRow(textBox, i);
-                        Grid.SetColumn(textBox, j);
+                        Grid.SetRow(textBox, x);
+                        Grid.SetColumn(textBox, y);
                         GridAdjacencyTable.Children.Add(textBox);
                     }
                 }

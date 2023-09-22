@@ -57,7 +57,7 @@
 
         <StackPanel Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="3" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20,0,0,0">
             <Label Content="Set count of nodes:" FontSize="16" VerticalAlignment="Center"/>
-            <TextBox x:Name="TextBoxNodesCount" Width="40" Text="3" VerticalAlignment="Center" Height="24" TextAlignment="Center" MaxLines="1" FontSize="16" MaxLength="2" PreviewTextInput="TextBoxNodesCount_PreviewTextInput" />
+            <TextBox x:Name="TextBoxNodesCount" Width="40" Text="3" VerticalAlignment="Center" Height="24" TextAlignment="Center" MaxLines="1" FontSize="16" MaxLength="2" PreviewTextInput="OnlyNumbersValidation_PreviewTextInput" />
             <Button x:Name="ButtonApplyNodesCount" Content="Apply" Margin="12,0,0,0" Padding="4" HorizontalAlignment="Center" VerticalAlignment="Center" Click="ButtonApplyNodesCount_Click"/>
         </StackPanel>
 
