@@ -70,7 +70,7 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0" Content="Clear" Width="60" HorizontalAlignment="Right" Margin="0,0,6,0" Click="ButtonClearTable_Click" />
-            <Button Grid.Column="1" Content="Build" Width="60" HorizontalAlignment="Left" Margin="6,0,0,0" />
+            <Button Grid.Column="1" Content="Build" Width="60" HorizontalAlignment="Left" Margin="6,0,0,0" Click="ButtonBuildGraph_Click" />
         </Grid>
     </Grid>
 </Window>
