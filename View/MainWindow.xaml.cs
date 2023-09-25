@@ -3,6 +3,7 @@ using CDM_Lab_3._1.Models.Graph;
 using CDM_Lab_3._1.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -114,7 +115,7 @@ namespace CDM_Lab_3._1
             {
                 Label label = new()
                 {
-                    Content = $"x{i}"
+                    Content = $"x{i - 1}"
                 };
                 Grid.SetRow(label, i);
                 Grid.SetColumn(label, 0);
@@ -137,9 +138,13 @@ namespace CDM_Lab_3._1
                 {
                     for (int y = 0; y < nodeCount; y++)
                     {
-                        if (short.Parse(AdjacencyTableTextBox[x, y].Text) - (whileCount - 1) > 0 && (GraphTypeCurrent == GraphType.Undirected ? x >= y : true))
+                        if (MatrixAdjacencyTable[x, y] - (whileCount - 1) > 0 && (GraphTypeCurrent == GraphType.Directed || x >= y))
                         {
-                            graph.Nodes[y].AddChild(graph.Nodes[x]);
+                            graph.Nodes[x].AddChild(graph.Nodes[y], MatrixAdjacencyTable[x, y] <= MatrixAdjacencyTable[y, x]);
+                        }
+                        else if (GraphTypeCurrent == GraphType.Mixed && MatrixAdjacencyTable[x, y] - (whileCount - 1) > 0 && (MatrixAdjacencyTable[x, y] - (whileCount - 1) - MatrixAdjacencyTable[y, x] - (whileCount - 1)) >= 1)
+                        {
+                            graph.Nodes[x].AddChild(graph.Nodes[y], MatrixAdjacencyTable[x, y] <= MatrixAdjacencyTable[y, x]);
                         }
                         if (AdjacencyTableCopy[x, y] != 0)
                         {
@@ -157,7 +162,7 @@ namespace CDM_Lab_3._1
                                 {
                                     Label label = new()
                                     {
-                                        Content = $"a{indexLastColumn}"
+                                        Content = $"a{indexLastColumn - 1}"
                                     };
                                     Grid.SetRow(label, k);
                                     Grid.SetColumn(label, indexLastColumn);
@@ -256,7 +261,7 @@ namespace CDM_Lab_3._1
                     {
                         Label label = new()
                         {
-                            Content = $"x{((x == 0) ? y : x)}"
+                            Content = $"x{((x == 0) ? y - 1 : x - 1)}"
                         };
                         Grid.SetRow(label, x);
                         Grid.SetColumn(label, y);
@@ -300,6 +305,7 @@ namespace CDM_Lab_3._1
 
         private void ButtonBuildGraph_Click(object sender, RoutedEventArgs e)
         {
+            Debug.WriteLine("111");
             //GraphWindow graphWindow = new();
             //graphWindow.Show();
         }
