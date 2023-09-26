@@ -1,0 +1,47 @@
+﻿<UserControl x:Class="CDM_Lab_3._1.Controls.ControlEdge"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:CDM_Lab_3._1.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="100" d:DesignWidth="100">
+    <Grid>
+        <Canvas>
+            <Path
+                x:Name="Arrow"
+                Fill="Transparent"
+                Stroke="Yellow"
+                StrokeThickness="16"
+                StrokeStartLineCap="Flat"
+                StrokeEndLineCap="Triangle"
+                StrokeLineJoin="Round"
+                >
+                <Path.Data>
+                    <PathGeometry>
+                        <PathFigure x:Name="ArrowStart" StartPoint="0, 0">
+                            <ArcSegment x:Name="ArrowEnd" Size="780,425" Point="0.1,0.1" SweepDirection="Counterclockwise" />
+                        </PathFigure>
+                    </PathGeometry>
+                </Path.Data>
+            </Path>
+            <Path 
+                x:Name="Line"
+                Fill="Transparent"
+                Stroke="Yellow"
+                StrokeThickness="2"
+                StrokeStartLineCap="Flat"
+                StrokeEndLineCap="Flat"
+                StrokeLineJoin="Round">
+                <Path.Data>
+                    <PathGeometry>
+                        <PathFigure x:Name="EdgeStart" StartPoint="0, 0">
+                            <ArcSegment x:Name="EdgeEnd" Size="800,800" Point="10,10" SweepDirection="Clockwise" />
+                        </PathFigure>
+                    </PathGeometry>
+                </Path.Data>
+            </Path>
+        </Canvas>
+        <TextBlock x:Name="ArcName" FontSize="16" FontWeight="Bold" Background="Yellow" Text="a0" Foreground="black" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="30"/>
+    </Grid>
+</UserControl>
