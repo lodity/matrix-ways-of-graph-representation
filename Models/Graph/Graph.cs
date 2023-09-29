@@ -3,9 +3,10 @@ using System.Collections.Generic;
 
 namespace CDM_Lab_3._1.Models.Graph
 {
-    internal class Graph : IEnumerable
+    public class Graph : IEnumerable
     {
         public List<Node> Nodes = new();
+        public int Count { get => Nodes.Count; }
         public Graph()
         {
         }

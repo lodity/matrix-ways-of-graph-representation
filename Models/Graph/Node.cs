@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace CDM_Lab_3._1.Models.Graph
 {
-    internal class Node
+    public class Node
     {
         public int Id { get; set; }
         public string Name { get => "x" + Id; }
