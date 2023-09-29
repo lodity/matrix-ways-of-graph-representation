@@ -1,9 +1,9 @@
 ﻿using CDM_Lab_3._1.Models;
 using CDM_Lab_3._1.Models.Graph;
 using CDM_Lab_3._1.Utils;
+using CDM_Lab_3._1.View;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -305,9 +305,8 @@ namespace CDM_Lab_3._1
 
         private void ButtonBuildGraph_Click(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("111");
-            //GraphWindow graphWindow = new();
-            //graphWindow.Show();
+            GraphWindow graphWindow = new(graph);
+            graphWindow.Show();
         }
     }
 }
