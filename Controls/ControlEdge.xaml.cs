@@ -1,17 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace CDM_Lab_3._1.Controls
 {
@@ -20,9 +8,12 @@ namespace CDM_Lab_3._1.Controls
     /// </summary>
     public partial class ControlEdge : UserControl
     {
-        public ControlEdge()
+        public ControlEdge(Point posStart, Point posEnd, Point window)
         {
             InitializeComponent();
+
+            EdgeStart.StartPoint = new Point(posStart.X + window.X / 2, posStart.Y + window.Y / 2);
+            EdgeEnd.Point = new Point(posEnd.X + window.X / 2, posEnd.Y + window.Y / 2);
         }
     }
 }
