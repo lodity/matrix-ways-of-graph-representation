@@ -33,9 +33,7 @@ namespace CDM_Lab_3._1.View
                 Dictionary<int, Node> children = _graph.Nodes[controlNodes[i].index].Children;
                 foreach (var key in children.Keys)
                 {
-                    Point edgePosStart = controlNodes[i].Position;
-                    Point edgePosEnd = controlNodes[children[key].Id].Position;
-                    ControlEdge controlEdge = new(edgePosStart, edgePosEnd, new Point(Width, Height));
+                    ControlEdge controlEdge = new(controlNodes[i], controlNodes[children[key].Id], new Point(Width, Height), children[key].Id == _graph.Nodes[controlNodes[i].index].Id);
                     Field.Children.Add(controlEdge);
                 }
             }

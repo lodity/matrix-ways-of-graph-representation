@@ -10,6 +10,7 @@ namespace CDM_Lab_3._1.Controls
     /// </summary>
     public partial class ControlNode : UserControl
     {
+        public event RoutedEventHandler Moved;
         private Point CurrentPos;
         private Point CurrentMousePosition;
         public int index;
@@ -42,8 +43,8 @@ namespace CDM_Lab_3._1.Controls
                 CurrentPos.X = (RenderTransform as TranslateTransform).X;
                 CurrentPos.Y = (RenderTransform as TranslateTransform).Y;
                 CurrentMousePosition = e.GetPosition(Parent as Window);
-                // Runtime updating arcs
-                //Moved?.Invoke(sender, e);
+                //Runtime updating arcs
+                Moved?.Invoke(sender, e);
             }
         }
 

@@ -308,5 +308,6 @@ namespace CDM_Lab_3._1
             GraphWindow graphWindow = new(graph);
             graphWindow.Show();
         }
+        //TODO: Make a new method to create the graph
     }
 }
