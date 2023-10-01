@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace CDM_Lab_3._1
 {
@@ -15,6 +16,11 @@ namespace CDM_Lab_3._1
     /// </summary>
     public partial class MainWindow : Window
     {
+        #region Settings
+        const string DEFAULT_NODES_COUNT = "3";
+        const short DEFAULT_ADJACENCY_TABLE_VALUE = 1; // 0 - no edge, 1 - edge
+        #endregion
+
         private GraphType GraphTypeCurrent { get => (GraphType)ComboBoxGraphType.SelectedIndex; }
         private short edgeCount;
         private int NodeCount = 0;
@@ -23,6 +29,8 @@ namespace CDM_Lab_3._1
         public MainWindow()
         {
             InitializeComponent();
+            TextBoxNodesCount.Text = DEFAULT_NODES_COUNT;
+
             edgeCount = 0;
             ButtonApplyNodesCount_Click();
             Tuple<short[,], TextBox[,]> tuple = CreateAdjacencyTable(NodeCount);
@@ -42,33 +50,27 @@ namespace CDM_Lab_3._1
             if (MatrixAdjacencyTable != null)
                 UpdateIncidenceTable();
         }
-        private void OnlyNumbersValidation_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        private void OnlyNumbersValidation_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             e.Handled = TextUtils.IsTextSatisfiesRegex(e.Text);
         }
-        private void TextBoxAdjacencyTable_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void TextBoxAdjacencyTable_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             short textBoxSenderText = short.Parse(((TextBox)sender).Text);
             if (textBoxSenderText >= 0 && textBoxSenderText < 9)
-            {
                 ((TextBox)sender).Text = (textBoxSenderText + 1).ToString();
-            }
         }
-        private void TextBoxAdjacencyTable_MouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        private void TextBoxAdjacencyTable_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             TextBox textBoxSender = (TextBox)sender;
             short textBoxSenderText = short.Parse(textBoxSender.Text);
             if (((textBoxSenderText > 0 || e.Delta > 0) && textBoxSenderText < 9) || (textBoxSenderText == 9 && e.Delta < 0))
-            {
-                textBoxSender.Text = (int.Parse(textBoxSender.Text) + (e.Delta > 0 ? 1 : -1)).ToString();
-            }
+                textBoxSender.Text = (textBoxSenderText + (e.Delta > 0 ? 1 : -1)).ToString();
         }
         private void TextBoxAdjacencyTable_LostFocus(object sender, RoutedEventArgs e)
         {
             if (((TextBox)(sender)).Text == "")
-            {
                 ((TextBox)(sender)).Text = "0";
-            }
         }
         private void TextBoxAdjacencyTable_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -77,13 +79,10 @@ namespace CDM_Lab_3._1
             int indexY = (int.Parse(textBoxSender.Name.Split('_')[2]) - 1);
             MatrixAdjacencyTable[indexX, indexY] = textBoxSender.Text != "" ? short.Parse(textBoxSender.Text) : (short)0;
             if (GraphTypeCurrent == GraphType.Undirected && indexX != indexY)
-            {
                 AdjacencyTableTextBox[indexY, indexX].Text = textBoxSender.Text;
-            }
 
             UpdateIncidenceTable();
         }
-
         private void UpdateIncidenceTable()
         {
             ClearGrid(GridIncidenceTable);
@@ -104,15 +103,10 @@ namespace CDM_Lab_3._1
                 }
             }
 
-            if (edgeCount == 0)
-            {
-                return;
-            }
+            if (edgeCount == 0) return;
             short[,] MatrixIncidenceTable = new short[edgeCount, NodeCount];
             for (short i = 0; i < NodeCount + 1; i++)
-            {
                 GridIncidenceTable.RowDefinitions.Add(new RowDefinition { Height = new GridLength(24, GridUnitType.Pixel) });
-            }
             GridIncidenceTable.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32, GridUnitType.Pixel) });
 
             for (int i = 1; i < NodeCount + 1; i++)
@@ -131,15 +125,11 @@ namespace CDM_Lab_3._1
             do
             {
                 isNoZeroRemained = false;
-                whileCount++;
                 for (int x = 0; x < NodeCount; x++)
                 {
                     for (int y = 0; y < NodeCount; y++)
                     {
-                        if (AdjacencyTableCopy[x, y] != 0)
-                        {
-                            isNoZeroRemained = true;
-                        }
+                        if (AdjacencyTableCopy[x, y] != 0) isNoZeroRemained = true;
                         if (AdjacencyTableCopy[x, y] != 0 && ((!listOfIndexes.Contains(new Tuple<int, int>(y, x)) || x == y) || GraphTypeCurrent == GraphType.Directed))
                         {
                             GridIncidenceTable.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32, GridUnitType.Pixel) });
@@ -171,9 +161,7 @@ namespace CDM_Lab_3._1
                                                     isLoop = true;
                                                 }
                                                 else if (!isLoop && (k - 1 == x || k - 1 == y))
-                                                {
                                                     textBox.Text = "1";
-                                                }
                                                 else
                                                     textBox.Text = "0";
                                             }
@@ -209,10 +197,8 @@ namespace CDM_Lab_3._1
                                             }
                                             break;
                                     }
-                                    if (whileCount == 1)
-                                    {
+                                    if (whileCount == 0)
                                         MatrixIncidenceTable[incedenceEdgeCount - 1, k - 1] = short.Parse(textBox.Text);
-                                    }
                                     textBox.MaxLength = 2;
                                     Grid.SetRow(textBox, k);
                                     Grid.SetColumn(textBox, indexLastColumn);
@@ -221,27 +207,20 @@ namespace CDM_Lab_3._1
                             }
                         }
                         if (AdjacencyTableCopy[x, y] >= 1)
-                        {
                             AdjacencyTableCopy[x, y]--;
-                        }
                     }
                 }
-
+                whileCount++;
             } while (isNoZeroRemained);
         }
-
         private Tuple<short[,], TextBox[,]> CreateAdjacencyTable(int nodeCount)
         {
             MatrixAdjacencyTable = new short[nodeCount, nodeCount];
             AdjacencyTableTextBox = new TextBox[nodeCount, nodeCount];
             for (short i = 0; i < nodeCount + 1; i++)
-            {
                 GridAdjacencyTable.RowDefinitions.Add(new RowDefinition { Height = new GridLength(24, GridUnitType.Pixel) });
-            }
             for (short i = 0; i < nodeCount + 1; i++)
-            {
                 GridAdjacencyTable.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32, GridUnitType.Pixel) });
-            }
             for (short x = 0; x < nodeCount + 1; x++)
             {
                 for (short y = 0; y < nodeCount + 1; y++)
@@ -259,11 +238,11 @@ namespace CDM_Lab_3._1
                     }
                     else
                     {
-                        MatrixAdjacencyTable[x - 1, y - 1] = 0;
+                        MatrixAdjacencyTable[x - 1, y - 1] = DEFAULT_ADJACENCY_TABLE_VALUE;
                         TextBox textBox = new()
                         {
                             Name = $"textBoxAdjacencyTable_{x}_{y}",
-                            Text = "0",
+                            Text = $"{DEFAULT_ADJACENCY_TABLE_VALUE}",
                             MaxLength = 1
                         };
                         textBox.PreviewTextInput += OnlyNumbersValidation_PreviewTextInput;
@@ -280,20 +259,17 @@ namespace CDM_Lab_3._1
             }
             return new Tuple<short[,], TextBox[,]>(MatrixAdjacencyTable, AdjacencyTableTextBox);
         }
-
         private void ButtonApplyNodesCount_Click([Optional] object sender, [Optional] RoutedEventArgs e)
         {
             ButtonClearTable_Click();
             NodeCount = int.Parse(TextBoxNodesCount.Text);
             CreateAdjacencyTable(NodeCount);
         }
-
         private void ButtonClearTable_Click([Optional] object sender, [Optional] RoutedEventArgs e)
         {
             ClearGrid(GridIncidenceTable);
             ClearGrid(GridAdjacencyTable);
         }
-
         private void ButtonBuildGraph_Click(object sender, RoutedEventArgs e)
         {
             GraphWindow graphWindow = new(CreateGraph());
@@ -309,30 +285,26 @@ namespace CDM_Lab_3._1
             do
             {
                 isNoZeroRemained = false;
-                whileCount++;
-
                 for (int x = 0; x < NodeCount; x++)
                 {
                     for (int y = 0; y < NodeCount; y++)
                     {
-                        if (MatrixAdjacencyTable[x, y] - (whileCount - 1) > 0 && (GraphTypeCurrent == GraphType.Directed || x >= y))
+                        if (MatrixAdjacencyTable[x, y] - whileCount > 0 && (GraphTypeCurrent == GraphType.Directed || x >= y))
                         {
                             graph.Nodes[x].AddChild(graph.Nodes[y], MatrixAdjacencyTable[x, y] <= MatrixAdjacencyTable[y, x]);
                         }
-                        else if (GraphTypeCurrent == GraphType.Mixed && MatrixAdjacencyTable[x, y] - (whileCount - 1) > 0 && (MatrixAdjacencyTable[x, y] - (whileCount - 1) - MatrixAdjacencyTable[y, x] - (whileCount - 1)) >= 1)
+                        else if (GraphTypeCurrent == GraphType.Mixed && MatrixAdjacencyTable[x, y] - whileCount > 0
+                            && (MatrixAdjacencyTable[x, y] - whileCount - MatrixAdjacencyTable[y, x] - whileCount) >= 1)
                         {
                             graph.Nodes[x].AddChild(graph.Nodes[y], MatrixAdjacencyTable[x, y] <= MatrixAdjacencyTable[y, x]);
                         }
                         if (AdjacencyTableCopy[x, y] != 0)
-                        {
                             isNoZeroRemained = true;
-                        }
                         if (AdjacencyTableCopy[x, y] >= 1)
-                        {
                             AdjacencyTableCopy[x, y]--;
-                        }
                     }
                 }
+                whileCount++;
             } while (isNoZeroRemained);
             return graph;
         }
