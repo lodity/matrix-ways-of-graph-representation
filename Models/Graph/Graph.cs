@@ -7,8 +7,13 @@ namespace CDM_Lab_3._1.Models.Graph
     {
         public List<Node> Nodes = new();
         public int Count { get => Nodes.Count; }
-        public Graph()
+        public Graph(int nodeCount)
         {
+            for (int i = 0; i < nodeCount; i++)
+            {
+                Node node = new(i);
+                AddNode(node);
+            }
         }
         public void AddNode(Node node)
         {
