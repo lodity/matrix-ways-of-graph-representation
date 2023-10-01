@@ -28,13 +28,15 @@ namespace CDM_Lab_3._1.View
             nodeSectors = new bool[horizontalSectorsMax, verticalSectorsMax];
 
             BuildNodes();
+            short edgeCount = 0;
             for (int i = 0; i < controlNodes.Length; i++)
             {
                 Dictionary<int, Node> children = _graph.Nodes[controlNodes[i].index].Children;
                 foreach (var key in children.Keys)
                 {
-                    ControlEdge controlEdge = new(controlNodes[i], controlNodes[children[key].Id], new Point(Width, Height), children[key].Id == _graph.Nodes[controlNodes[i].index].Id);
+                    ControlEdge controlEdge = new(controlNodes[i], controlNodes[children[key].Id], new Point(Width, Height), children[key].Id == _graph.Nodes[controlNodes[i].index].Id, edgeCount);
                     Field.Children.Add(controlEdge);
+                    edgeCount++;
                 }
             }
         }
@@ -49,6 +51,21 @@ namespace CDM_Lab_3._1.View
             {
                 int horizontalPos = RandomPosition(horizontalSectorsMax);
                 int verticalPos = RandomPosition(verticalSectorsMax);
+                //if (i == 0)
+                //{
+                //    horizontalPos = 3;
+                //    verticalPos = 5;
+                //}
+                //else if (i == 1)
+                //{
+                //    horizontalPos = 10;
+                //    verticalPos = 6;
+                //}
+                //else if (i == 2)
+                //{
+                //    horizontalPos = 4;
+                //    verticalPos = 8;
+                //}
 
                 if (!nodeSectors[horizontalPos, verticalPos])
                     nodeSectors[horizontalPos, verticalPos] = true;
