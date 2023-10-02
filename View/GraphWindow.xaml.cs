@@ -95,11 +95,10 @@ namespace CDM_Lab_3._1.View
             {
                 List<Tuple<int, Node>> children = _graph.Nodes[controlNodes[i].index].Children;
                 Dictionary<int, int> edges = new();
-                int offsetCoeff;
                 int edgeOffset;
                 foreach (var child in children)
                 {
-                    if (!edges.TryGetValue(child.Item1, out offsetCoeff))
+                    if (!edges.TryGetValue(child.Item1, out int offsetCoeff))
                     {
                         edges.Add(child.Item1, 0);
                         edgeOffset = 0;
@@ -108,9 +107,8 @@ namespace CDM_Lab_3._1.View
                         edgeOffset = ++edges[child.Item1];
 
                     ControlEdge controlEdge = new(controlNodes[i], controlNodes[child.Item2.Id], new Point(Width, Height),
-                        child.Item2.Id == _graph.Nodes[controlNodes[i].index].Id, edgeCount, edgeOffset);
+                        child.Item2.Id == _graph.Nodes[controlNodes[i].index].Id, edgeCount++, edgeOffset);
                     Field.Children.Add(controlEdge);
-                    edgeCount++;
                 }
             }
         }
