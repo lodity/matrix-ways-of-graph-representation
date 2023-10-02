@@ -36,7 +36,7 @@
                 <Path.Data>
                     <PathGeometry>
                         <PathFigure x:Name="EdgeStart" StartPoint="0, 0">
-                            <ArcSegment x:Name="EdgeEnd" Size="800,800" Point="200,200" SweepDirection="Clockwise" IsLargeArc="False"/>
+                            <ArcSegment x:Name="EdgeEnd" Size="800,800" Point="20,20" SweepDirection="Clockwise" IsLargeArc="False"/>
                         </PathFigure>
                     </PathGeometry>
                 </Path.Data>

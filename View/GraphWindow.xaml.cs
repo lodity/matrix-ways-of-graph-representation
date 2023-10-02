@@ -54,6 +54,7 @@ namespace CDM_Lab_3._1.View
             {
                 int horizontalPos = RandomPosition(horizontalSectorsMax);
                 int verticalPos = RandomPosition(verticalSectorsMax);
+                // FOR TEST
                 if (i == 0)
                 {
                     horizontalPos = 3;
@@ -92,10 +93,22 @@ namespace CDM_Lab_3._1.View
             short edgeCount = 0;
             for (int i = 0; i < controlNodes.Length; i++)
             {
-                Dictionary<int, Node> children = _graph.Nodes[controlNodes[i].index].Children;
-                foreach (var key in children.Keys)
+                List<Tuple<int, Node>> children = _graph.Nodes[controlNodes[i].index].Children;
+                Dictionary<int, int> edges = new();
+                int offsetCoeff;
+                int edgeOffset;
+                foreach (var child in children)
                 {
-                    ControlEdge controlEdge = new(controlNodes[i], controlNodes[children[key].Id], new Point(Width, Height), children[key].Id == _graph.Nodes[controlNodes[i].index].Id, edgeCount);
+                    if (!edges.TryGetValue(child.Item1, out offsetCoeff))
+                    {
+                        edges.Add(child.Item1, 0);
+                        edgeOffset = 0;
+                    }
+                    else
+                        edgeOffset = ++edges[child.Item1];
+
+                    ControlEdge controlEdge = new(controlNodes[i], controlNodes[child.Item2.Id], new Point(Width, Height),
+                        child.Item2.Id == _graph.Nodes[controlNodes[i].index].Id, edgeCount, edgeOffset);
                     Field.Children.Add(controlEdge);
                     edgeCount++;
                 }
