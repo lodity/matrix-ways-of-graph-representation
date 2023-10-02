@@ -21,6 +21,7 @@ namespace CDM_Lab_3._1
         const short DEFAULT_ADJACENCY_TABLE_VALUE = 1; // 0 - no edge, 1 - edge
         #endregion
 
+        GraphWindow? graphWindow;
         private GraphType GraphTypeCurrent { get => (GraphType)ComboBoxGraphType.SelectedIndex; }
         private short edgeCount;
         private int NodeCount = 0;
@@ -31,6 +32,7 @@ namespace CDM_Lab_3._1
             InitializeComponent();
             TextBoxNodesCount.Text = DEFAULT_NODES_COUNT;
 
+            graphWindow = null;
             edgeCount = 0;
             ButtonApplyNodesCount_Click();
             Tuple<short[,], TextBox[,]> tuple = CreateAdjacencyTable(NodeCount);
@@ -272,8 +274,13 @@ namespace CDM_Lab_3._1
         }
         private void ButtonBuildGraph_Click(object sender, RoutedEventArgs e)
         {
-            GraphWindow graphWindow = new(CreateGraph());
-            graphWindow.Show();
+            if (graphWindow != null && graphWindow.IsVisible)
+                graphWindow.Graph = CreateGraph();
+            else
+            {
+                graphWindow = new(CreateGraph());
+                graphWindow.Show();
+            }
         }
         private Graph CreateGraph()
         {
