@@ -93,30 +93,35 @@ namespace CDM_Lab_3._1.View
             short edgeCount = 0;
             for (int i = 0; i < controlNodes.Length; i++)
             {
-                int edgeMultipleOffsetMax = 0;
                 List<Tuple<int, Node>> children = _graph.Nodes[controlNodes[i].index].Children;
                 Dictionary<int, int> edges = new();
-                int edgeOffset;
+                List<int> edgeOffsetList = new();
+                int edgeMultipleOffsetMax = 0;
                 foreach (var child in children)
                 {
-                    if (!edges.TryGetValue(child.Item1, out int offsetCoeff))
+                    if (!edges.TryGetValue(child.Item1, out int edgeOffset))
                     {
                         edges.Add(child.Item1, 0);
                         edgeOffset = 0;
+                        edgeOffsetList.Add(edgeOffset);
                     }
                     else
+                    {
                         edgeOffset = ++edges[child.Item1];
+                        edgeOffsetList.Add(edgeOffset);
+                    }
                     edgeMultipleOffsetMax++;
                 }
                 for (int j = 0; j < children.Count; j++)
                 {
                     ControlEdge controlEdge = new(controlNodes[i], controlNodes[children[j].Item2.Id], new Point(Field.Width, Field.Height),
-                        children[j].Item2.Id == _graph.Nodes[controlNodes[i].index].Id, edgeCount++, j, edgeMultipleOffsetMax);
+                        children[j].Item2.Id == _graph.Nodes[controlNodes[i].index].Id, edgeCount++, edgeOffsetList[j], edgeMultipleOffsetMax);
                     Field.Children.Add(controlEdge);
                 }
             }
         }
 
+        // Window title bar actions
         private void TopBar_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             DragMove();
