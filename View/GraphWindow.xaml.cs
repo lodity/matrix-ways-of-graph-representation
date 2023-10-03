@@ -23,8 +23,8 @@ namespace CDM_Lab_3._1.View
 
             _graph = graph;
             controlNodes = new ControlNode[_graph.Count];
-            horizontalSectorsMax = (int)Math.Floor(Width / 40) - 1;
-            verticalSectorsMax = (int)Math.Floor(Height / 40) - 1;
+            horizontalSectorsMax = (int)Math.Floor(Field.Width / 40) - 1;
+            verticalSectorsMax = (int)Math.Floor(Field.Height / 40) - 1;
             nodeSectors = new bool[horizontalSectorsMax, verticalSectorsMax];
 
             BuildNodes();
@@ -57,8 +57,8 @@ namespace CDM_Lab_3._1.View
                 // FOR TEST
                 if (i == 0)
                 {
-                    horizontalPos = 3;
-                    verticalPos = 5;
+                    horizontalPos = 0;
+                    verticalPos = 0;
                 }
                 else if (i == 1)
                 {
@@ -93,6 +93,7 @@ namespace CDM_Lab_3._1.View
             short edgeCount = 0;
             for (int i = 0; i < controlNodes.Length; i++)
             {
+                int edgeMultipleOffsetMax = 0;
                 List<Tuple<int, Node>> children = _graph.Nodes[controlNodes[i].index].Children;
                 Dictionary<int, int> edges = new();
                 int edgeOffset;
@@ -105,12 +106,28 @@ namespace CDM_Lab_3._1.View
                     }
                     else
                         edgeOffset = ++edges[child.Item1];
-
-                    ControlEdge controlEdge = new(controlNodes[i], controlNodes[child.Item2.Id], new Point(Width, Height),
-                        child.Item2.Id == _graph.Nodes[controlNodes[i].index].Id, edgeCount++, edgeOffset);
+                    edgeMultipleOffsetMax++;
+                }
+                for (int j = 0; j < children.Count; j++)
+                {
+                    ControlEdge controlEdge = new(controlNodes[i], controlNodes[children[j].Item2.Id], new Point(Field.Width, Field.Height),
+                        children[j].Item2.Id == _graph.Nodes[controlNodes[i].index].Id, edgeCount++, j, edgeMultipleOffsetMax);
                     Field.Children.Add(controlEdge);
                 }
             }
+        }
+
+        private void TopBar_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            DragMove();
+        }
+        private void WindowMinimaze_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+        }
+        private void WindowClose_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 }

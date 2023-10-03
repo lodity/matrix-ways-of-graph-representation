@@ -11,7 +11,7 @@ namespace CDM_Lab_3._1.Models.Graph
         public List<Tuple<int, Node>> Children = new();
         public Dictionary<int, bool> Edges = new();
 
-        public Node(int id, List<Tuple<int, Node>> children = null)
+        public Node(int id, List<Tuple<int, Node>>? children = null)
         {
             Id = id;
             if (children != null)

@@ -21,27 +21,22 @@ namespace CDM_Lab_3._1.Controls
             this.index = index;
             Text.Text = $"x{index}";
             RenderTransform = new TranslateTransform();
-            (RenderTransform as TranslateTransform).X = point.X;
-            (RenderTransform as TranslateTransform).Y = point.Y;
+            ((TranslateTransform)RenderTransform).X = point.X;
+            ((TranslateTransform)RenderTransform).Y = point.Y;
         }
         public Point Position
         {
-            get
-            {
-                Point res = new Point();
-                res = new Point((RenderTransform as TranslateTransform).X, (RenderTransform as TranslateTransform).Y);
-                return res;
-            }
+            get => new(((TranslateTransform)RenderTransform).X, ((TranslateTransform)RenderTransform).Y);
         }
         private void NodeBorder_MouseMove(object sender, MouseEventArgs e)
         {
             Vector diff = e.GetPosition(Parent as Window) - CurrentMousePosition;
             if (NodeBorder.IsMouseCaptured)
             {
-                (RenderTransform as TranslateTransform).X += diff.X;
-                (RenderTransform as TranslateTransform).Y += diff.Y;
-                CurrentPos.X = (RenderTransform as TranslateTransform).X;
-                CurrentPos.Y = (RenderTransform as TranslateTransform).Y;
+                ((TranslateTransform)RenderTransform).X += diff.X;
+                ((TranslateTransform)RenderTransform).Y += diff.Y;
+                CurrentPos.X = ((TranslateTransform)RenderTransform).X;
+                CurrentPos.Y = ((TranslateTransform)RenderTransform).Y;
                 CurrentMousePosition = e.GetPosition(Parent as Window);
                 //Runtime updating arcs
                 Moved?.Invoke(sender, e);

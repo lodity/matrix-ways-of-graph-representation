@@ -5,9 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CDM_Lab_3._1.View"
         mc:Ignorable="d"
+        WindowStyle="None"
         ResizeMode="NoResize"
-        Title="GraphWindow" Height="600" Width="1000">
-    <Grid x:Name="Field">
+        Title="GraphWindow" Width="1200" Height="820" >
+    <StackPanel >
+            <Border x:Name="TopBar" Height="20px" Background="AliceBlue" MouseDown="TopBar_MouseDown">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="WindowMinimaze" Width="20" Click="WindowMinimaze_Click">—</Button>
+                <Button x:Name="WindowClose" Width="20" Click="WindowClose_Click">X</Button>
+                </StackPanel>
+            </Border>
+        <Grid x:Name="Field"  Width="1200" Height="800">
         
-    </Grid>
+        </Grid>
+    </StackPanel>
 </Window>
