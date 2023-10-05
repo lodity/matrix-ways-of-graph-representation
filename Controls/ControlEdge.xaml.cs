@@ -61,8 +61,21 @@ namespace CDM_Lab_3._1.Controls
                 double EdgeTextCoeff = EdgeMultipleOffset / EdgeMultipleOffsetMax;
                 EdgeEnd.IsLargeArc = true;
                 EdgeEnd.Point = new(NodeStartPosX + HalfOfWindowWidth + 5, NodeStartPosY + HalfOfWindowHeight + 5);
-                EdgeEnd.Size = new(18 + EdgeEndSizeCoeff, 18 + EdgeEndSizeCoeff);
+                double radius = 25 + EdgeEndSizeCoeff;
+                EdgeEnd.Size = new(radius, radius);
                 SetTextPoint(new Point(NodeStartPosX + 30 + EdgeTextCoeff * 45, NodeStartPosY + 25 - EdgeTextCoeff * 37.5));
+                // Arrow pos
+                //TODO fix govnocode
+                double angleInRadians = Math.Asin(10 / (radius / 2) / 2);
+                if (EdgeEndSizeCoeff == 0)
+                    angleInRadians *= 1.15;
+                double x = Math.Cos(angleInRadians + 145 / (180 / Math.PI));
+                double y = Math.Sin(angleInRadians + 145 / (180 / Math.PI));
+                Vector vectorArrow = new(x, y);
+                vectorArrow = new(-vectorArrow.Y, vectorArrow.X);
+                vectorArrow.Normalize();
+
+                SetArrowPoint(NodeEnd.Position + vectorArrow * 27, NodeEnd.Position + vectorArrow * 26);
             }
             else
             {
@@ -88,6 +101,11 @@ namespace CDM_Lab_3._1.Controls
                 X = pos.X,
                 Y = pos.Y
             };
+        }
+        private void SetArrowPoint(Point start, Point end)
+        {
+            ArrowStart.StartPoint = new(start.X + HalfOfWindowWidth, start.Y + HalfOfWindowHeight);
+            ArrowEnd.Point = new(end.X + HalfOfWindowWidth, end.Y + HalfOfWindowHeight);
         }
         private void EdgeName_MouseEnter(object sender, MouseEventArgs e) { Panel.SetZIndex(this, 999); }
         private void EdgeName_MouseLeave(object sender, MouseEventArgs e) { Panel.SetZIndex(this, 1); }

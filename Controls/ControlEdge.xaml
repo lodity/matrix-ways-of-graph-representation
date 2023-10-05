@@ -8,10 +8,10 @@
              d:DesignHeight="100" d:DesignWidth="100">
     <Grid>
         <Canvas>
-            <!--<Path
+            <Path
                 x:Name="Arrow"
                 Fill="Transparent"
-                Stroke="Yellow"
+                Stroke="Blue"
                 StrokeThickness="16"
                 StrokeStartLineCap="Flat"
                 StrokeEndLineCap="Triangle"
@@ -24,7 +24,7 @@
                         </PathFigure>
                     </PathGeometry>
                 </Path.Data>
-            </Path>-->
+            </Path>
             <Path
                 x:Name="Line"
                 Fill="Transparent"

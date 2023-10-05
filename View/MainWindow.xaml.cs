@@ -18,7 +18,7 @@ namespace CDM_Lab_3._1
     {
         #region Settings
         const string DEFAULT_NODES_COUNT = "3";
-        const short DEFAULT_ADJACENCY_TABLE_VALUE = 0; // 0 - no edge, 1 - edge
+        const short DEFAULT_ADJACENCY_TABLE_VALUE = 1; // 0 - no edge, 1 - edge
         #endregion
 
         GraphWindow? graphWindow;
