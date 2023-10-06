@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CDM_Lab_3._1.Models;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -13,6 +14,7 @@ namespace CDM_Lab_3._1.Controls
     {
         public ControlNode NodeStart;
         public ControlNode NodeEnd;
+        GraphType graphTypeCurrent;
         public bool IsLoop;
         double EdgeEndRadius;
         readonly double EdgeMultipleOffset;
@@ -24,8 +26,10 @@ namespace CDM_Lab_3._1.Controls
         double NodeStartPosY;
         double NodeEndPosX;
         double NodeEndPosY;
+        readonly Vector vectorX = new Vector(1, 0);
 
-        public ControlEdge(ControlNode nodeStart, ControlNode nodeEnd, Point window, bool isLoop, int number, double edgeOffsetList, int edgeMultipleOffsetMax)
+
+        public ControlEdge(ControlNode nodeStart, ControlNode nodeEnd, Point window, bool isLoop, int number, double edgeOffsetList, int edgeMultipleOffsetMax, GraphType GraphTypeCurrent)
         {
             InitializeComponent();
 
@@ -39,10 +43,12 @@ namespace CDM_Lab_3._1.Controls
             nodeStart.Moved += UpdateHandler;
             nodeEnd.Moved += UpdateHandler;
 
+            graphTypeCurrent = GraphTypeCurrent;
             NodeStart = nodeStart;
             NodeEnd = nodeEnd;
             IsLoop = isLoop;
             EdgeMultipleOffsetMax = edgeMultipleOffsetMax;
+
 
             UpdatePosition();
         }
@@ -81,9 +87,11 @@ namespace CDM_Lab_3._1.Controls
             {
                 EdgeEnd.Point = new(NodeEndPosX + HalfOfWindowWidth, NodeEndPosY + HalfOfWindowHeight);
 
-                double halfOfStraightLength =
-                    Math.Sqrt(Math.Pow(NodeStartPosX - NodeEndPosX, 2) + Math.Pow(NodeStartPosY - NodeEndPosY, 2)) / 2;
-                double offset = EdgeEndRadius - Math.Sqrt(Math.Pow(EdgeEndRadius, 2) - Math.Pow(halfOfStraightLength, 2));
+                double straightLength =
+                    Math.Sqrt(Math.Pow(NodeStartPosX - NodeEndPosX, 2) + Math.Pow(NodeStartPosY - NodeEndPosY, 2));
+                double halfOfStraightLength = straightLength / 2;
+                double offsetFromCenter = Math.Sqrt(Math.Pow(EdgeEndRadius, 2) - Math.Pow(halfOfStraightLength, 2));
+                double offset = EdgeEndRadius - offsetFromCenter;
 
                 Vector ortogonal = new(-NodeEndPosY + NodeStartPosY, NodeEndPosX - NodeStartPosX);
                 ortogonal.Normalize();
@@ -92,6 +100,28 @@ namespace CDM_Lab_3._1.Controls
                 Point textPos = new(((NodeEndPosX + NodeStartPosX) / 2) + ortogonal.X * offset,
                                             ((NodeEndPosY + NodeStartPosY) / 2) + ortogonal.Y * offset);
                 SetTextPoint(textPos);
+
+                if (graphTypeCurrent == GraphType.Directed)
+                {
+                    // TODO Mixed Graph type
+                    Vector straightVector = new(NodeEndPosX - NodeStartPosX, NodeEndPosY - NodeStartPosY);
+                    double angleToRadius = Math.Atan2(offsetFromCenter, halfOfStraightLength);
+                    if (double.IsNaN(angleToRadius)) angleToRadius = 0;
+                    double angleOfArc = Vector.AngleBetween(straightVector, vectorX) * Math.PI / 180.0;
+                    double angle = angleToRadius + angleOfArc;
+                    Vector arrow = new(Math.Sin(angle), Math.Cos(angle));
+                    //double res = Vector.AngleBetween(arrow, vectorX);
+                    Point ArrowEndPoint = new(
+                        NodeEnd.Position.X + arrow.X * -28,
+                        NodeEnd.Position.Y + arrow.Y * -28
+                        );
+                    Point ArrowStartPoint = new(
+                        NodeEnd.Position.X + arrow.X * -29,
+                        NodeEnd.Position.Y + arrow.Y * -29
+                        );
+
+                    SetArrowPoint(ArrowStartPoint, ArrowEndPoint);
+                }
             }
         }
         private void SetTextPoint(Point pos)

@@ -278,7 +278,7 @@ namespace CDM_Lab_3._1
                 graphWindow.Graph = CreateGraph();
             else
             {
-                graphWindow = new(CreateGraph());
+                graphWindow = new(CreateGraph(), GraphTypeCurrent);
                 graphWindow.Show();
             }
         }

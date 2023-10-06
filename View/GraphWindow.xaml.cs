@@ -1,4 +1,5 @@
 ﻿using CDM_Lab_3._1.Controls;
+using CDM_Lab_3._1.Models;
 using CDM_Lab_3._1.Models.Graph;
 using System;
 using System.Collections.Generic;
@@ -13,15 +14,17 @@ namespace CDM_Lab_3._1.View
     {
         Random randomGlobal = new();
         Graph _graph;
+        GraphType graphTypeCurrent;
         int horizontalSectorsMax;
         int verticalSectorsMax;
         bool[,] nodeSectors;
         ControlNode[] controlNodes;
-        public GraphWindow(Graph graph)
+        public GraphWindow(Graph graph, GraphType GraphTypeCurrent)
         {
             InitializeComponent();
 
             _graph = graph;
+            graphTypeCurrent = GraphTypeCurrent;
             controlNodes = new ControlNode[_graph.Count];
             horizontalSectorsMax = (int)Math.Floor(Field.Width / 40) - 1;
             verticalSectorsMax = (int)Math.Floor(Field.Height / 40) - 1;
@@ -115,7 +118,7 @@ namespace CDM_Lab_3._1.View
                 for (int j = 0; j < children.Count; j++)
                 {
                     ControlEdge controlEdge = new(controlNodes[i], controlNodes[children[j].Item2.Id], new Point(Field.Width, Field.Height),
-                        children[j].Item2.Id == _graph.Nodes[controlNodes[i].index].Id, edgeCount++, edgeOffsetList[j], edgeMultipleOffsetMax);
+                        children[j].Item2.Id == _graph.Nodes[controlNodes[i].index].Id, edgeCount++, edgeOffsetList[j], edgeMultipleOffsetMax, graphTypeCurrent);
                     Field.Children.Add(controlEdge);
                 }
             }
