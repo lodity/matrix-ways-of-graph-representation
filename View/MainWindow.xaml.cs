@@ -18,7 +18,7 @@ namespace CDM_Lab_3._1
     {
         #region Settings
         const string DEFAULT_NODES_COUNT = "3";
-        const short DEFAULT_ADJACENCY_TABLE_VALUE = 1; // 0 - no edge, 1 - edge
+        const short DEFAULT_ADJACENCY_TABLE_VALUE = 0; // 0 - no edge, 1 - edge
         #endregion
 
         GraphWindow? graphWindow;
@@ -287,6 +287,7 @@ namespace CDM_Lab_3._1
             Graph graph = new(NodeCount);
 
             short[,] AdjacencyTableCopy = (short[,])MatrixAdjacencyTable.Clone();
+            short[,] AdjacencyTableCopySecond = (short[,])MatrixAdjacencyTable.Clone();
             bool isNoZeroRemained;
             short whileCount = 0;
             do
@@ -296,14 +297,27 @@ namespace CDM_Lab_3._1
                 {
                     for (int y = 0; y < NodeCount; y++)
                     {
-                        if (MatrixAdjacencyTable[x, y] - whileCount > 0 && (GraphTypeCurrent == GraphType.Directed || x >= y))
+                        if (AdjacencyTableCopySecond[x, y] - (GraphTypeCurrent == GraphType.Mixed ? 0 : whileCount) > 0
+                            && (GraphTypeCurrent != GraphType.Undirected || x >= y))
                         {
-                            graph.Nodes[x].AddChild(graph.Nodes[y], MatrixAdjacencyTable[x, y] <= MatrixAdjacencyTable[y, x]);
-                        }
-                        else if (GraphTypeCurrent == GraphType.Mixed && MatrixAdjacencyTable[x, y] - whileCount > 0
-                            && (MatrixAdjacencyTable[x, y] - whileCount - MatrixAdjacencyTable[y, x] - whileCount) >= 1)
-                        {
-                            graph.Nodes[x].AddChild(graph.Nodes[y], MatrixAdjacencyTable[x, y] <= MatrixAdjacencyTable[y, x]);
+                            bool isSingleOriented = false;
+                            switch (GraphTypeCurrent)
+                            {
+                                case GraphType.Directed: isSingleOriented = true; break;
+                                case GraphType.Mixed:
+                                    {
+                                        isSingleOriented = (AdjacencyTableCopySecond[x, y] - AdjacencyTableCopySecond[y, x]) > 0;
+                                        if (!isSingleOriented)
+                                        {
+                                            AdjacencyTableCopySecond[x, y]--;
+                                            AdjacencyTableCopySecond[y, x]--;
+                                        }
+                                        else if (AdjacencyTableCopySecond[x, y] > AdjacencyTableCopySecond[y, x]) AdjacencyTableCopySecond[x, y]--;
+                                        else AdjacencyTableCopySecond[y, x]--;
+                                    }
+                                    break;
+                            }
+                            graph.Nodes[x].AddChild(graph.Nodes[y], isSingleOriented);
                         }
                         if (AdjacencyTableCopy[x, y] != 0)
                             isNoZeroRemained = true;

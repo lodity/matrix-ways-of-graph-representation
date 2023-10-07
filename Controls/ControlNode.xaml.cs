@@ -10,7 +10,7 @@ namespace CDM_Lab_3._1.Controls
     /// </summary>
     public partial class ControlNode : UserControl
     {
-        public event RoutedEventHandler Moved;
+        public event RoutedEventHandler? Moved;
         private Point CurrentPos;
         private Point CurrentMousePosition;
         public int index;

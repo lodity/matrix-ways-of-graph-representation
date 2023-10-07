@@ -96,7 +96,7 @@ namespace CDM_Lab_3._1.View
             short edgeCount = 0;
             for (int i = 0; i < controlNodes.Length; i++)
             {
-                List<Tuple<int, Node>> children = _graph.Nodes[controlNodes[i].index].Children;
+                List<Tuple<int, Node>> children = _graph.Nodes[i].Children;
                 Dictionary<int, int> edges = new();
                 List<int> edgeOffsetList = new();
                 int edgeMultipleOffsetMax = 0;
@@ -118,7 +118,8 @@ namespace CDM_Lab_3._1.View
                 for (int j = 0; j < children.Count; j++)
                 {
                     ControlEdge controlEdge = new(controlNodes[i], controlNodes[children[j].Item2.Id], new Point(Field.Width, Field.Height),
-                        children[j].Item2.Id == _graph.Nodes[controlNodes[i].index].Id, edgeCount++, edgeOffsetList[j], edgeMultipleOffsetMax, graphTypeCurrent);
+                        children[j].Item2.Id == _graph.Nodes[controlNodes[i].index].Id, edgeCount++, edgeOffsetList[j], edgeMultipleOffsetMax, graphTypeCurrent,
+                        _graph.Nodes[i].Edges[j]);
                     Field.Children.Add(controlEdge);
                 }
             }

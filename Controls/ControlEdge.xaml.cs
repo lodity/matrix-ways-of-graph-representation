@@ -14,8 +14,9 @@ namespace CDM_Lab_3._1.Controls
     {
         public ControlNode NodeStart;
         public ControlNode NodeEnd;
-        GraphType graphTypeCurrent;
+        GraphType GraphTypeCurrent;
         public bool IsLoop;
+        private bool IsSingleOriented;
         double EdgeEndRadius;
         readonly double EdgeMultipleOffset;
         readonly int EdgeMultipleOffsetMax;
@@ -29,7 +30,7 @@ namespace CDM_Lab_3._1.Controls
         readonly Vector vectorX = new Vector(1, 0);
 
 
-        public ControlEdge(ControlNode nodeStart, ControlNode nodeEnd, Point window, bool isLoop, int number, double edgeOffsetList, int edgeMultipleOffsetMax, GraphType GraphTypeCurrent)
+        public ControlEdge(ControlNode nodeStart, ControlNode nodeEnd, Point window, bool isLoop, int number, double edgeOffsetList, int edgeMultipleOffsetMax, GraphType graphTypeCurrent, bool isSingleOriented)
         {
             InitializeComponent();
 
@@ -43,7 +44,8 @@ namespace CDM_Lab_3._1.Controls
             nodeStart.Moved += UpdateHandler;
             nodeEnd.Moved += UpdateHandler;
 
-            graphTypeCurrent = GraphTypeCurrent;
+            GraphTypeCurrent = graphTypeCurrent;
+            IsSingleOriented = isSingleOriented;
             NodeStart = nodeStart;
             NodeEnd = nodeEnd;
             IsLoop = isLoop;
@@ -101,27 +103,28 @@ namespace CDM_Lab_3._1.Controls
                                             ((NodeEndPosY + NodeStartPosY) / 2) + ortogonal.Y * offset);
                 SetTextPoint(textPos);
 
-                if (graphTypeCurrent == GraphType.Directed)
+
+                if (IsSingleOriented)
                 {
-                    // TODO Mixed Graph type
                     Vector straightVector = new(NodeEndPosX - NodeStartPosX, NodeEndPosY - NodeStartPosY);
                     double angleToRadius = Math.Atan2(offsetFromCenter, halfOfStraightLength);
                     if (double.IsNaN(angleToRadius)) angleToRadius = 0;
                     double angleOfArc = Vector.AngleBetween(straightVector, vectorX) * Math.PI / 180.0;
                     double angle = angleToRadius + angleOfArc;
                     Vector arrow = new(Math.Sin(angle), Math.Cos(angle));
-                    //double res = Vector.AngleBetween(arrow, vectorX);
                     Point ArrowEndPoint = new(
-                        NodeEnd.Position.X + arrow.X * -28,
-                        NodeEnd.Position.Y + arrow.Y * -28
+                        NodeEnd.Position.X + arrow.X * -27,
+                        NodeEnd.Position.Y + arrow.Y * -27
                         );
                     Point ArrowStartPoint = new(
-                        NodeEnd.Position.X + arrow.X * -29,
-                        NodeEnd.Position.Y + arrow.Y * -29
+                        NodeEnd.Position.X + arrow.X * -28,
+                        NodeEnd.Position.Y + arrow.Y * -28
                         );
 
                     SetArrowPoint(ArrowStartPoint, ArrowEndPoint);
                 }
+                else
+                    Arrow.Visibility = Visibility.Collapsed;
             }
         }
         private void SetTextPoint(Point pos)
