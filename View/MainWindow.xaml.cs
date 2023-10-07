@@ -287,7 +287,6 @@ namespace CDM_Lab_3._1
             Graph graph = new(NodeCount);
 
             short[,] AdjacencyTableCopy = (short[,])MatrixAdjacencyTable.Clone();
-            short[,] AdjacencyTableCopySecond = (short[,])MatrixAdjacencyTable.Clone();
             bool isNoZeroRemained;
             short whileCount = 0;
             do
@@ -297,7 +296,7 @@ namespace CDM_Lab_3._1
                 {
                     for (int y = 0; y < NodeCount; y++)
                     {
-                        if (AdjacencyTableCopySecond[x, y] - (GraphTypeCurrent == GraphType.Mixed ? 0 : whileCount) > 0
+                        if (AdjacencyTableCopy[x, y] - (GraphTypeCurrent == GraphType.Mixed ? 0 : whileCount) > 0
                             && (GraphTypeCurrent != GraphType.Undirected || x >= y))
                         {
                             bool isSingleOriented = false;
@@ -306,14 +305,14 @@ namespace CDM_Lab_3._1
                                 case GraphType.Directed: isSingleOriented = true; break;
                                 case GraphType.Mixed:
                                     {
-                                        isSingleOriented = (AdjacencyTableCopySecond[x, y] - AdjacencyTableCopySecond[y, x]) > 0;
+                                        isSingleOriented = (AdjacencyTableCopy[x, y] - AdjacencyTableCopy[y, x]) > 0;
                                         if (!isSingleOriented)
                                         {
-                                            AdjacencyTableCopySecond[x, y]--;
-                                            AdjacencyTableCopySecond[y, x]--;
+                                            AdjacencyTableCopy[x, y]--;
+                                            AdjacencyTableCopy[y, x]--;
                                         }
-                                        else if (AdjacencyTableCopySecond[x, y] > AdjacencyTableCopySecond[y, x]) AdjacencyTableCopySecond[x, y]--;
-                                        else AdjacencyTableCopySecond[y, x]--;
+                                        else if (AdjacencyTableCopy[x, y] > AdjacencyTableCopy[y, x]) AdjacencyTableCopy[x, y]--;
+                                        else AdjacencyTableCopy[y, x]--;
                                     }
                                     break;
                             }
@@ -321,8 +320,6 @@ namespace CDM_Lab_3._1
                         }
                         if (AdjacencyTableCopy[x, y] != 0)
                             isNoZeroRemained = true;
-                        if (AdjacencyTableCopy[x, y] >= 1)
-                            AdjacencyTableCopy[x, y]--;
                     }
                 }
                 whileCount++;
