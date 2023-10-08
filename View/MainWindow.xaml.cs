@@ -142,12 +142,7 @@ namespace CDM_Lab_3._1
                             {
                                 if (k == 0)
                                 {
-                                    Label label = new()
-                                    {
-                                        Content = $"a{indexLastColumn - 1}"
-                                    };
-                                    Grid.SetRow(label, k);
-                                    Grid.SetColumn(label, indexLastColumn);
+                                    Label label = UiUtils.CreateTableLabel($"a{indexLastColumn - 1}", new Tuple<int, int>(k, indexLastColumn));
                                     GridIncidenceTable.Children.Add(label);
                                 }
                                 else
@@ -230,32 +225,20 @@ namespace CDM_Lab_3._1
                     if (x == 0 && y == 0) continue;
                     if (x == 0 || y == 0)
                     {
-                        Label label = new()
-                        {
-                            Content = $"x{((x == 0) ? y - 1 : x - 1)}"
-                        };
-                        Grid.SetRow(label, x);
-                        Grid.SetColumn(label, y);
+                        Label label = UiUtils.CreateTableLabel($"x{((x == 0) ? y - 1 : x - 1)}", new Tuple<int, int>(x, y));
                         GridAdjacencyTable.Children.Add(label);
                     }
                     else
                     {
-                        MatrixAdjacencyTable[x - 1, y - 1] = DEFAULT_ADJACENCY_TABLE_VALUE;
-                        TextBox textBox = new()
-                        {
-                            Name = $"textBoxAdjacencyTable_{x}_{y}",
-                            Text = $"{DEFAULT_ADJACENCY_TABLE_VALUE}",
-                            MaxLength = 1
-                        };
+                        TextBox textBox = UiUtils.CreateTableTextBox("textBoxAdjacencyTable", new Tuple<int, int>(x, y), DEFAULT_ADJACENCY_TABLE_VALUE, 1);
                         textBox.PreviewTextInput += OnlyNumbersValidation_PreviewTextInput;
                         textBox.TextChanged += TextBoxAdjacencyTable_TextChanged;
                         textBox.LostFocus += TextBoxAdjacencyTable_LostFocus;
                         textBox.MouseDoubleClick += TextBoxAdjacencyTable_MouseDoubleClick;
                         textBox.MouseWheel += TextBoxAdjacencyTable_MouseWheel;
-                        Grid.SetRow(textBox, x);
-                        Grid.SetColumn(textBox, y);
                         GridAdjacencyTable.Children.Add(textBox);
                         AdjacencyTableTextBox[x - 1, y - 1] = textBox;
+                        MatrixAdjacencyTable[x - 1, y - 1] = DEFAULT_ADJACENCY_TABLE_VALUE;
                     }
                 }
             }
