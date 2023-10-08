@@ -5,14 +5,15 @@ namespace CDM_Lab_3._1.Utils
 {
     internal class UiUtils
     {
-        public static TextBox CreateTableTextBox(string name, Tuple<int, int> coordinates, int value, int maxLength)
+        public static TextBox CreateTableTextBox(string? name, Tuple<int, int> coordinates, int value, int maxLength)
         {
             TextBox textBox = new()
             {
-                Name = $"{name}_{coordinates.Item1}_{coordinates.Item2}",
                 Text = $"{value}",
                 MaxLength = maxLength
             };
+            if (name != null)
+                textBox.Name = $"{name}_{coordinates.Item1}_{coordinates.Item2}";
             Grid.SetRow(textBox, coordinates.Item1);
             Grid.SetColumn(textBox, coordinates.Item2);
             return textBox;

@@ -3,7 +3,6 @@ using CDM_Lab_3._1.Models.Graph;
 using CDM_Lab_3._1.Utils;
 using CDM_Lab_3._1.View;
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -17,7 +16,7 @@ namespace CDM_Lab_3._1
     public partial class MainWindow : Window
     {
         #region Settings
-        const string DEFAULT_NODES_COUNT = "2";
+        const string DEFAULT_NODES_COUNT = "3";
         const short DEFAULT_ADJACENCY_TABLE_VALUE = 0; // 0 - no edge, 1 - edge
         #endregion
 
@@ -89,126 +88,67 @@ namespace CDM_Lab_3._1
         {
             ClearGrid(GridIncidenceTable);
 
-            short[,] AdjacencyTableCopy = (short[,])MatrixAdjacencyTable.Clone();
-            edgeCount = 0;
-            List<Tuple<int, int>> listOfIndexes = new();
-
-            for (int x = 0; x < NodeCount; x++)
-            {
-                for (int y = 0; y < NodeCount; y++)
-                {
-                    if (MatrixAdjacencyTable[x, y] >= 1 && ((!listOfIndexes.Contains(new Tuple<int, int>(y, x)) || x == y) || GraphTypeCurrent == GraphType.Directed))
-                    {
-                        listOfIndexes.Add(new Tuple<int, int>(x, y));
-                        edgeCount++;
-                    }
-                }
-            }
-
-            if (edgeCount == 0) return;
-            short[,] MatrixIncidenceTable = new short[edgeCount, NodeCount];
             for (short i = 0; i < NodeCount + 1; i++)
                 GridIncidenceTable.RowDefinitions.Add(new RowDefinition { Height = new GridLength(24, GridUnitType.Pixel) });
             GridIncidenceTable.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32, GridUnitType.Pixel) });
 
             for (int i = 1; i < NodeCount + 1; i++)
             {
-                Label label = new()
-                {
-                    Content = $"x{i - 1}"
-                };
-                Grid.SetRow(label, i);
-                Grid.SetColumn(label, 0);
+                Label label = UiUtils.CreateTableLabel($"x{i - 1}", new Tuple<int, int>(i, 0));
                 GridIncidenceTable.Children.Add(label);
             }
-            bool isNoZeroRemained;
-            short whileCount = 0;
-            short incedenceEdgeCount = 0;
-            do
+            Graph graph = CreateGraph();
+            foreach (Node node in graph)
             {
-                isNoZeroRemained = false;
-                for (int x = 0; x < NodeCount; x++)
+                for (int i = 0; i < node.Children.Count; i++)
                 {
-                    for (int y = 0; y < NodeCount; y++)
+                    bool isLoop = false;
+                    GridIncidenceTable.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32, GridUnitType.Pixel) });
+                    int indexLastColumn = GridIncidenceTable.ColumnDefinitions.Count - 1;
+                    for (short k = 0; k < NodeCount + 1; k++)
                     {
-                        if (AdjacencyTableCopy[x, y] != 0) isNoZeroRemained = true;
-                        if (AdjacencyTableCopy[x, y] != 0 && ((!listOfIndexes.Contains(new Tuple<int, int>(y, x)) || x == y) || GraphTypeCurrent == GraphType.Directed))
+                        if (k == 0)
                         {
-                            GridIncidenceTable.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32, GridUnitType.Pixel) });
-                            int indexLastColumn = GridIncidenceTable.ColumnDefinitions.Count - 1;
-                            bool isLoop = false;
-                            incedenceEdgeCount++;
-                            for (short k = 0; k < NodeCount + 1; k++)
-                            {
-                                if (k == 0)
-                                {
-                                    Label label = UiUtils.CreateTableLabel($"a{indexLastColumn - 1}", new Tuple<int, int>(k, indexLastColumn));
-                                    GridIncidenceTable.Children.Add(label);
-                                }
-                                else
-                                {
-                                    TextBox textBox = new();
-                                    switch (GraphTypeCurrent)
-                                    {
-                                        case GraphType.Undirected:
-                                            {
-                                                if (x == y && x == k - 1)
-                                                {
-                                                    textBox.Text = "2";
-                                                    isLoop = true;
-                                                }
-                                                else if (!isLoop && (k - 1 == x || k - 1 == y))
-                                                    textBox.Text = "1";
-                                                else
-                                                    textBox.Text = "0";
-                                            }
-                                            break;
-                                        case GraphType.Directed:
-                                            {
-                                                if (x == y && x == k - 1)
-                                                {
-                                                    textBox.Text = "2";
-                                                    isLoop = true;
-                                                }
-                                                else if (!isLoop && k - 1 == x)
-                                                    textBox.Text = "1";
-                                                else if (!isLoop && k - 1 == y)
-                                                    textBox.Text = "-1";
-                                                else
-                                                    textBox.Text = "0";
-                                            }
-                                            break;
-                                        case GraphType.Mixed:
-                                            {
-                                                if (x == y && x == k - 1)
-                                                {
-                                                    textBox.Text = "2";
-                                                    isLoop = true;
-                                                }
-                                                else if (!isLoop && k - 1 == y && AdjacencyTableCopy[y, x] == 0)
-                                                    textBox.Text = "-1";
-                                                else if (!isLoop && k - 1 == x || k - 1 == y)
-                                                    textBox.Text = "1";
-                                                else
-                                                    textBox.Text = "0";
-                                            }
-                                            break;
-                                    }
-                                    if (whileCount == 0)
-                                        MatrixIncidenceTable[incedenceEdgeCount - 1, k - 1] = short.Parse(textBox.Text);
-                                    textBox.MaxLength = 2;
-                                    Grid.SetRow(textBox, k);
-                                    Grid.SetColumn(textBox, indexLastColumn);
-                                    GridIncidenceTable.Children.Add(textBox);
-                                }
-                            }
+                            Label label = UiUtils.CreateTableLabel($"a{indexLastColumn - 1}", new Tuple<int, int>(k, indexLastColumn));
+                            GridIncidenceTable.Children.Add(label);
                         }
-                        if (AdjacencyTableCopy[x, y] >= 1)
-                            AdjacencyTableCopy[x, y]--;
+                        else
+                        {
+                            int textBoxValue;
+                            if (GraphTypeCurrent == GraphType.Undirected || GraphTypeCurrent == GraphType.Directed)
+                            {
+                                if (node.Children[i].Item1 == node.Id && node.Id == k - 1)
+                                {
+                                    textBoxValue = 2;
+                                    isLoop = true;
+                                }
+                                else if (!isLoop && k - 1 == node.Id)
+                                    textBoxValue = 1;
+                                else if (!isLoop && k - 1 == node.Children[i].Item1)
+                                    textBoxValue = (node.Edges[i] ? -1 : 1);
+                                else
+                                    textBoxValue = 0;
+                            }
+                            else
+                            {
+                                if (node.Children[i].Item1 == node.Id && node.Id == k - 1)
+                                {
+                                    textBoxValue = 2;
+                                    isLoop = true;
+                                }
+                                else if (!isLoop && k - 1 == node.Children[i].Item1 && node.Edges[i])
+                                    textBoxValue = -1;
+                                else if (!isLoop && k - 1 == node.Id || k - 1 == node.Children[i].Item1)
+                                    textBoxValue = 1;
+                                else
+                                    textBoxValue = 0;
+                            }
+                            TextBox textBox = UiUtils.CreateTableTextBox(null, new Tuple<int, int>(k, indexLastColumn), textBoxValue, 2);
+                            GridIncidenceTable.Children.Add(textBox);
+                        }
                     }
                 }
-                whileCount++;
-            } while (isNoZeroRemained);
+            }
         }
         private Tuple<short[,], TextBox[,]> CreateAdjacencyTable(int nodeCount)
         {
