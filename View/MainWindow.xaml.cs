@@ -17,7 +17,7 @@ namespace CDM_Lab_3._1
     public partial class MainWindow : Window
     {
         #region Settings
-        const string DEFAULT_NODES_COUNT = "3";
+        const string DEFAULT_NODES_COUNT = "2";
         const short DEFAULT_ADJACENCY_TABLE_VALUE = 0; // 0 - no edge, 1 - edge
         #endregion
 
@@ -296,8 +296,7 @@ namespace CDM_Lab_3._1
                 {
                     for (int y = 0; y < NodeCount; y++)
                     {
-                        if (AdjacencyTableCopy[x, y] - (GraphTypeCurrent == GraphType.Mixed ? 0 : whileCount) > 0
-                            && (GraphTypeCurrent != GraphType.Undirected || x >= y))
+                        if (AdjacencyTableCopy[x, y] > 0 && (GraphTypeCurrent != GraphType.Undirected || x >= y))
                         {
                             bool isSingleOriented = false;
                             switch (GraphTypeCurrent)
@@ -305,6 +304,11 @@ namespace CDM_Lab_3._1
                                 case GraphType.Directed: isSingleOriented = true; break;
                                 case GraphType.Mixed:
                                     {
+                                        if (x == y)
+                                        {
+                                            AdjacencyTableCopy[x, y]--;
+                                            break;
+                                        }
                                         isSingleOriented = (AdjacencyTableCopy[x, y] - AdjacencyTableCopy[y, x]) > 0;
                                         if (!isSingleOriented)
                                         {
@@ -318,7 +322,9 @@ namespace CDM_Lab_3._1
                             }
                             graph.Nodes[x].AddChild(graph.Nodes[y], isSingleOriented);
                         }
-                        if (AdjacencyTableCopy[x, y] != 0)
+                        if (GraphTypeCurrent != GraphType.Mixed)
+                            AdjacencyTableCopy[x, y]--;
+                        if (AdjacencyTableCopy[x, y] > 0)
                             isNoZeroRemained = true;
                     }
                 }
