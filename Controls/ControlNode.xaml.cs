@@ -10,13 +10,16 @@ namespace CDM_Lab_3._1.Controls
     /// </summary>
     public partial class ControlNode : UserControl
     {
+        public bool isSeleted;
         public event RoutedEventHandler? Moved;
+        public event RoutedEventHandler? Selected;
         private Point CurrentPos;
         private Point CurrentMousePosition;
         public int index;
         public ControlNode(int index, Point point)
         {
             InitializeComponent();
+            isSeleted = false;
             Panel.SetZIndex(this, 2);
             this.index = index;
             Text.Text = $"x{index}";
@@ -42,7 +45,27 @@ namespace CDM_Lab_3._1.Controls
                 Moved?.Invoke(sender, e);
             }
         }
-
+        public void Select(bool isSelected)
+        {
+            if (isSelected)
+            {
+                ChangeBorderColor(new BrushConverter().ConvertFrom("#45b500") as SolidColorBrush);
+                ChangeBorderThickness(new Thickness(3));
+            }
+            else
+            {
+                ChangeBorderColor(Brushes.White);
+                ChangeBorderThickness(new Thickness(1));
+            }
+        }
+        private void ChangeBorderColor(SolidColorBrush borderColor)
+        {
+            NodeBorder.BorderBrush = borderColor;
+        }
+        private void ChangeBorderThickness(Thickness thickness)
+        {
+            NodeBorder.BorderThickness = thickness;
+        }
         private void NodeBorder_MouseDown(object sender, MouseButtonEventArgs e)
         {
             CurrentMousePosition = e.GetPosition(Parent as Window);
@@ -52,6 +75,10 @@ namespace CDM_Lab_3._1.Controls
         {
             if (NodeBorder.IsMouseCaptured)
                 NodeBorder.ReleaseMouseCapture();
+        }
+        private void NodeBorder_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            Selected?.Invoke(sender, e);
         }
     }
 }

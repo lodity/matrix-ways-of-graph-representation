@@ -18,8 +18,8 @@ namespace CDM_Lab_3._1.Controls
         public bool IsLoop;
         private bool IsSingleOriented;
         double EdgeEndRadius;
-        readonly double EdgeMultipleOffset;
-        readonly int EdgeMultipleOffsetMax;
+        readonly double EdgeOffset;
+        readonly int EdgeOffsetMax;
         readonly double HalfOfWindowWidth;
         readonly double HalfOfWindowHeight;
 
@@ -27,18 +27,18 @@ namespace CDM_Lab_3._1.Controls
         double NodeStartPosY;
         double NodeEndPosX;
         double NodeEndPosY;
-        readonly Vector vectorX = new Vector(1, 0);
+        readonly Vector vectorX = new(1, 0);
 
 
-        public ControlEdge(ControlNode nodeStart, ControlNode nodeEnd, Point window, bool isLoop, int number, double edgeOffsetList, int edgeMultipleOffsetMax, GraphType graphTypeCurrent, bool isSingleOriented)
+        public ControlEdge(ControlNode nodeStart, ControlNode nodeEnd, Point window, bool isLoop, int number, double edgeOffset, int edgeOffsetMax, GraphType graphTypeCurrent, bool isSingleOriented)
         {
             InitializeComponent();
 
             HalfOfWindowWidth = window.X / 2;
             HalfOfWindowHeight = window.Y / 2;
-            EdgeMultipleOffset = edgeOffsetList;
+            EdgeOffset = edgeOffset;
 
-            EdgeEndRadius = 700 + EdgeMultipleOffset / edgeMultipleOffsetMax * 1200;
+            EdgeEndRadius = 700 + EdgeOffset / edgeOffsetMax * 1200;
             EdgeEnd.Size = new Size(EdgeEndRadius, EdgeEndRadius);
             EdgeName.Text = $"{number}";
             nodeStart.Moved += UpdateHandler;
@@ -49,7 +49,7 @@ namespace CDM_Lab_3._1.Controls
             NodeStart = nodeStart;
             NodeEnd = nodeEnd;
             IsLoop = isLoop;
-            EdgeMultipleOffsetMax = edgeMultipleOffsetMax;
+            EdgeOffsetMax = edgeOffsetMax;
 
 
             UpdatePosition();
@@ -65,8 +65,8 @@ namespace CDM_Lab_3._1.Controls
             EdgeStart.StartPoint = new Point(NodeStartPosX + HalfOfWindowWidth, NodeStartPosY + HalfOfWindowHeight);
             if (IsLoop)
             {
-                double EdgeEndSizeCoeff = EdgeMultipleOffset * 1.8;
-                double EdgeTextCoeff = EdgeMultipleOffset / EdgeMultipleOffsetMax;
+                double EdgeEndSizeCoeff = EdgeOffset * 1.8;
+                double EdgeTextCoeff = EdgeOffset / EdgeOffsetMax;
                 EdgeEnd.IsLargeArc = true;
                 EdgeEnd.Point = new(NodeStartPosX + HalfOfWindowWidth + 5, NodeStartPosY + HalfOfWindowHeight + 5);
                 double radius = 25 + EdgeEndSizeCoeff;

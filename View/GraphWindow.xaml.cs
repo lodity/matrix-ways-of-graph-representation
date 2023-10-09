@@ -4,6 +4,7 @@ using CDM_Lab_3._1.Models.Graph;
 using System;
 using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace CDM_Lab_3._1.View
 {
@@ -12,11 +13,13 @@ namespace CDM_Lab_3._1.View
     /// </summary>
     public partial class GraphWindow : Window
     {
+        ControlNode? controlNodeSelected;
         Random randomGlobal = new();
         Graph _graph;
         GraphType graphTypeCurrent;
         int horizontalSectorsMax;
         int verticalSectorsMax;
+        int edgeCount;
         bool[,] nodeSectors;
         ControlNode[] controlNodes;
         public GraphWindow(Graph graph, GraphType GraphTypeCurrent)
@@ -87,13 +90,15 @@ namespace CDM_Lab_3._1.View
                                 break;
                             }
                 ControlNode controlNode = new(i, new Point((horizontalPos + 1) * 40 - Width / 2, (verticalPos + 1) * 40 - Height / 2));
+                controlNode.Selected += ControlNode_Selected;
                 controlNodes[i] = controlNode;
+
                 Field.Children.Add(controlNode);
             }
         }
         private void BuildEdges()
         {
-            short edgeCount = 0;
+            edgeCount = 0;
             for (int i = 0; i < controlNodes.Length; i++)
             {
                 List<Tuple<int, Node>> children = _graph.Nodes[i].Children;
@@ -122,6 +127,26 @@ namespace CDM_Lab_3._1.View
                         _graph.Nodes[i].Edges[j]);
                     Field.Children.Add(controlEdge);
                 }
+            }
+        }
+        private void ControlNode_Selected(object sender, RoutedEventArgs e)
+        {
+            Border borderSender = (Border)sender;
+            if (controlNodeSelected == null)
+            {
+                controlNodeSelected = (ControlNode)borderSender.Parent;
+                controlNodeSelected.Select(true);
+            }
+            else
+            {
+                _graph.Nodes[controlNodeSelected.index].AddChild(_graph.Nodes[((ControlNode)borderSender.Parent).index], graphTypeCurrent != GraphType.Undirected);
+                //TODO fix edgeOffset and edgeMultipleOffset
+                ControlEdge controlEdge = new(controlNodeSelected, (ControlNode)borderSender.Parent, new Point(Field.Width, Field.Height),
+                        controlNodeSelected == (ControlNode)borderSender.Parent, edgeCount++, _graph.Nodes[controlNodeSelected.index].Edges.Count - 1, _graph.Nodes[controlNodeSelected.index].Edges.Count, graphTypeCurrent,
+                        _graph.Nodes[controlNodeSelected.index].Edges[_graph.Nodes[controlNodeSelected.index].Edges.Count - 1]);
+                Field.Children.Add(controlEdge);
+                controlNodeSelected.Select(false);
+                controlNodeSelected = null;
             }
         }
 
