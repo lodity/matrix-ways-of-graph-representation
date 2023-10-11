@@ -13,6 +13,7 @@ namespace CDM_Lab_3._1.View
     /// </summary>
     public partial class GraphWindow : Window
     {
+        public event RoutedEventHandler? GraphChanged;
         ControlNode? controlNodeSelected;
         Random randomGlobal = new();
         Graph _graph;
@@ -38,6 +39,7 @@ namespace CDM_Lab_3._1.View
         }
         public Graph Graph
         {
+            get => _graph;
             set
             {
                 _graph = value;
@@ -152,6 +154,7 @@ namespace CDM_Lab_3._1.View
                 Field.Children.Add(controlEdge);
                 controlNodeSelected.Select(false);
                 controlNodeSelected = null;
+                GraphChanged?.Invoke(this, new RoutedEventArgs());
             }
         }
 

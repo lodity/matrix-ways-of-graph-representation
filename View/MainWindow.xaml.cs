@@ -20,6 +20,12 @@ namespace CDM_Lab_3._1
         const short DEFAULT_ADJACENCY_TABLE_VALUE = 0; // 0 - no edge, 1 - edge
         #endregion
 
+        private enum IncidenceAccessType
+        {
+            GraphWindow,
+            AdjacencyTable,
+        }
+
         GraphWindow? graphWindow;
         private GraphType GraphTypeCurrent { get => (GraphType)ComboBoxGraphType.SelectedIndex; }
         private short edgeCount;
@@ -37,7 +43,7 @@ namespace CDM_Lab_3._1
             Tuple<short[,], TextBox[,]> tuple = CreateAdjacencyTable(NodeCount);
             MatrixAdjacencyTable = tuple.Item1;
             AdjacencyTableTextBox = tuple.Item2;
-            UpdateIncidenceTable();
+            UpdateIncidenceTable(IncidenceAccessType.AdjacencyTable);
         }
         private static void ClearGrid(Grid grid)
         {
@@ -49,7 +55,7 @@ namespace CDM_Lab_3._1
         {
             ClearGrid(GridIncidenceTable);
             if (MatrixAdjacencyTable != null)
-                UpdateIncidenceTable();
+                UpdateIncidenceTable(IncidenceAccessType.AdjacencyTable);
         }
         private void OnlyNumbersValidation_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
@@ -82,9 +88,9 @@ namespace CDM_Lab_3._1
             if (GraphTypeCurrent == GraphType.Undirected && indexX != indexY)
                 AdjacencyTableTextBox[indexY, indexX].Text = textBoxSender.Text;
 
-            UpdateIncidenceTable();
+            UpdateIncidenceTable(IncidenceAccessType.AdjacencyTable);
         }
-        private void UpdateIncidenceTable()
+        private void UpdateIncidenceTable(IncidenceAccessType accessType)
         {
             ClearGrid(GridIncidenceTable);
 
@@ -97,7 +103,11 @@ namespace CDM_Lab_3._1
                 Label label = UiUtils.CreateTableLabel($"x{i - 1}", new Tuple<int, int>(i, 0));
                 GridIncidenceTable.Children.Add(label);
             }
-            Graph graph = CreateGraph();
+            Graph graph;
+            if (accessType == IncidenceAccessType.AdjacencyTable || graphWindow == null)
+                graph = CreateGraph_AdjacencyBased();
+            else
+                graph = graphWindow.Graph;
             foreach (Node node in graph)
             {
                 for (int i = 0; i < node.Children.Count; i++)
@@ -198,14 +208,21 @@ namespace CDM_Lab_3._1
         private void ButtonBuildGraph_Click(object sender, RoutedEventArgs e)
         {
             if (graphWindow != null && graphWindow.IsVisible)
-                graphWindow.Graph = CreateGraph();
+                graphWindow.Graph = CreateGraph_AdjacencyBased();
             else
             {
-                graphWindow = new(CreateGraph(), GraphTypeCurrent);
+                graphWindow = new(CreateGraph_AdjacencyBased(), GraphTypeCurrent);
                 graphWindow.Show();
+                graphWindow.GraphChanged += GraphWindow_GraphChanged;
             }
         }
-        private Graph CreateGraph()
+
+        private void GraphWindow_GraphChanged(object sender, RoutedEventArgs e)
+        {
+            UpdateIncidenceTable(IncidenceAccessType.GraphWindow);
+        }
+
+        private Graph CreateGraph_AdjacencyBased()
         {
             Graph graph = new(NodeCount);
 
