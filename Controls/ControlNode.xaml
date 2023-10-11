@@ -12,7 +12,7 @@
         CornerRadius="20"
         Background="#212124"
         BorderThickness="1"
-        BorderBrush="White" MouseDown="NodeBorder_MouseDown" MouseMove="NodeBorder_MouseMove" MouseUp="NodeBorder_MouseUp" MouseRightButtonDown="NodeBorder_MouseRightButtonDown">
+        BorderBrush="Black" MouseDown="NodeBorder_MouseDown" MouseMove="NodeBorder_MouseMove" MouseUp="NodeBorder_MouseUp" MouseRightButtonDown="NodeBorder_MouseRightButtonDown">
         <TextBlock x:Name="Text" TextAlignment="Center" Text="x0" FontSize="20" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
     </Border>
 </UserControl>

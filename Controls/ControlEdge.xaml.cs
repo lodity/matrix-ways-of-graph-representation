@@ -66,12 +66,11 @@ namespace CDM_Lab_3._1.Controls
             if (IsLoop)
             {
                 double EdgeEndSizeCoeff = EdgeOffset * 1.8;
-                double EdgeTextCoeff = EdgeOffset / EdgeOffsetMax;
                 EdgeEnd.IsLargeArc = true;
                 EdgeEnd.Point = new(NodeStartPosX + HalfOfWindowWidth + 5, NodeStartPosY + HalfOfWindowHeight + 5);
                 double radius = 25 + EdgeEndSizeCoeff;
                 EdgeEnd.Size = new(radius, radius);
-                SetTextPoint(new Point(NodeStartPosX + 30 + EdgeTextCoeff * 45, NodeStartPosY + 25 - EdgeTextCoeff * 37.5));
+                SetTextPoint(new Point(NodeStartPosX + 30 + EdgeOffset * 6, NodeStartPosY + 25 - EdgeOffset * 5));
                 // Arrow pos
                 //TODO fix govnocode
                 double angleInRadians = Math.Asin(10 / (radius / 2) / 2);
@@ -93,7 +92,7 @@ namespace CDM_Lab_3._1.Controls
                     Math.Sqrt(Math.Pow(NodeStartPosX - NodeEndPosX, 2) + Math.Pow(NodeStartPosY - NodeEndPosY, 2));
                 double halfOfStraightLength = straightLength / 2;
                 double offsetFromCenter = Math.Sqrt(Math.Pow(EdgeEndRadius, 2) - Math.Pow(halfOfStraightLength, 2));
-                double offset = EdgeEndRadius - offsetFromCenter;
+                double offset = double.IsNaN(offsetFromCenter) ? straightLength / 2 : EdgeEndRadius - offsetFromCenter;
 
                 Vector ortogonal = new(-NodeEndPosY + NodeStartPosY, NodeEndPosX - NodeStartPosX);
                 ortogonal.Normalize();

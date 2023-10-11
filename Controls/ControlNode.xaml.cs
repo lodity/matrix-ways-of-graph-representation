@@ -11,6 +11,7 @@ namespace CDM_Lab_3._1.Controls
     public partial class ControlNode : UserControl
     {
         public bool isSeleted;
+        public int CountOfLoops;
         public event RoutedEventHandler? Moved;
         public event RoutedEventHandler? Selected;
         private Point CurrentPos;

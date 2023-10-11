@@ -140,9 +140,14 @@ namespace CDM_Lab_3._1.View
             else
             {
                 _graph.Nodes[controlNodeSelected.index].AddChild(_graph.Nodes[((ControlNode)borderSender.Parent).index], graphTypeCurrent != GraphType.Undirected);
-                //TODO fix edgeOffset and edgeMultipleOffset
+                //TODO fix edgeOffset and edgeMultipleOffset when loop
+                int edgeOffset = 1;
+                int edgeOffsetMax = _graph.Nodes[controlNodeSelected.index].Edges.Count;
+                bool isLoop = controlNodeSelected == (ControlNode)borderSender.Parent;
+                if (isLoop)
+                    edgeOffset = edgeOffsetMax;
                 ControlEdge controlEdge = new(controlNodeSelected, (ControlNode)borderSender.Parent, new Point(Field.Width, Field.Height),
-                        controlNodeSelected == (ControlNode)borderSender.Parent, edgeCount++, _graph.Nodes[controlNodeSelected.index].Edges.Count - 1, _graph.Nodes[controlNodeSelected.index].Edges.Count, graphTypeCurrent,
+                        isLoop, edgeCount++, edgeOffset, edgeOffsetMax, graphTypeCurrent,
                         _graph.Nodes[controlNodeSelected.index].Edges[_graph.Nodes[controlNodeSelected.index].Edges.Count - 1]);
                 Field.Children.Add(controlEdge);
                 controlNodeSelected.Select(false);
