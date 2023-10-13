@@ -3,6 +3,7 @@ using CDM_Lab_3._1.Models.Graph;
 using CDM_Lab_3._1.Utils;
 using CDM_Lab_3._1.View;
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -32,6 +33,7 @@ namespace CDM_Lab_3._1
         private int NodeCount = 0;
         private short[,] MatrixAdjacencyTable;
         private TextBox[,] AdjacencyTableTextBox;
+        private bool IsTextBoxTextChangedFromUI = true;
         public MainWindow()
         {
             InitializeComponent();
@@ -43,7 +45,8 @@ namespace CDM_Lab_3._1
             Tuple<short[,], TextBox[,]> tuple = CreateAdjacencyTable(NodeCount);
             MatrixAdjacencyTable = tuple.Item1;
             AdjacencyTableTextBox = tuple.Item2;
-            UpdateIncidenceTable(IncidenceAccessType.AdjacencyTable);
+            if (DEFAULT_ADJACENCY_TABLE_VALUE != 0)
+                UpdateIncidenceTable(IncidenceAccessType.AdjacencyTable);
         }
         private static void ClearGrid(Grid grid)
         {
@@ -81,6 +84,8 @@ namespace CDM_Lab_3._1
         }
         private void TextBoxAdjacencyTable_TextChanged(object sender, TextChangedEventArgs e)
         {
+            if (!IsTextBoxTextChangedFromUI)
+                return;
             TextBox textBoxSender = ((TextBox)sender);
             int indexX = (int.Parse(textBoxSender.Name.Split('_')[1]) - 1);
             int indexY = (int.Parse(textBoxSender.Name.Split('_')[2]) - 1);
@@ -220,6 +225,9 @@ namespace CDM_Lab_3._1
         private void GraphWindow_GraphChanged(object sender, RoutedEventArgs e)
         {
             UpdateIncidenceTable(IncidenceAccessType.GraphWindow);
+            Tuple<short[,], TextBox[,]> tuple = UpdateAdjacencyTable();
+            MatrixAdjacencyTable = tuple.Item1;
+            AdjacencyTableTextBox = tuple.Item2;
         }
 
         private Graph CreateGraph_AdjacencyBased()
@@ -271,6 +279,73 @@ namespace CDM_Lab_3._1
                 whileCount++;
             } while (isNoZeroRemained);
             return graph;
+        }
+        private Tuple<short[,], TextBox[,]> UpdateAdjacencyTable()
+        {
+            ClearGrid(GridAdjacencyTable);
+
+            Graph graph;
+            if (graphWindow != null)
+                graph = graphWindow.Graph;
+            else
+                graph = CreateGraph_AdjacencyBased();
+
+            int nodeCount = graph.Count;
+
+            MatrixAdjacencyTable = new short[nodeCount, nodeCount];
+            AdjacencyTableTextBox = new TextBox[nodeCount, nodeCount];
+            for (short i = 0; i < nodeCount + 1; i++)
+                GridAdjacencyTable.RowDefinitions.Add(new RowDefinition { Height = new GridLength(24, GridUnitType.Pixel) });
+            for (short i = 0; i < nodeCount + 1; i++)
+                GridAdjacencyTable.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32, GridUnitType.Pixel) });
+            List<Tuple<int, int>> doSymetric = new();
+            List<int> doSymetricCount = new();
+            for (short x = 0; x < nodeCount + 1; x++)
+            {
+                for (short y = 0; y < nodeCount + 1; y++)
+                {
+                    if (x == 0 && y == 0) continue;
+                    if (x == 0 || y == 0)
+                    {
+                        Label label = UiUtils.CreateTableLabel($"x{((x == 0) ? y - 1 : x - 1)}", new Tuple<int, int>(x, y));
+                        GridAdjacencyTable.Children.Add(label);
+                    }
+                    else
+                    {
+                        int value = 0;
+                        if (x != 0 && y != 0)
+                            for (int i = 0; i < graph.Nodes[x - 1].Children.Count; i++)
+                            {
+                                if (graph.Nodes[x - 1].Children[i].Item1 == graph.Nodes[y - 1].Id)
+                                {
+                                    value++;
+                                    if (!graph.Nodes[x - 1].Edges[i] && graph.Nodes[x - 1].Id != graph.Nodes[y - 1].Id)
+                                    {
+                                        doSymetric.Add(new Tuple<int, int>(y - 1, x - 1));
+                                        doSymetricCount.Add(x);
+                                    }
+                                }
+                            }
+                        TextBox textBox = UiUtils.CreateTableTextBox("textBoxAdjacencyTable", new Tuple<int, int>(x, y), value, 1);
+                        textBox.PreviewTextInput += OnlyNumbersValidation_PreviewTextInput;
+                        textBox.TextChanged += TextBoxAdjacencyTable_TextChanged;
+                        textBox.LostFocus += TextBoxAdjacencyTable_LostFocus;
+                        textBox.MouseDoubleClick += TextBoxAdjacencyTable_MouseDoubleClick;
+                        textBox.MouseWheel += TextBoxAdjacencyTable_MouseWheel;
+                        GridAdjacencyTable.Children.Add(textBox);
+                        AdjacencyTableTextBox[x - 1, y - 1] = textBox;
+                        MatrixAdjacencyTable[x - 1, y - 1] = (short)value;
+                    }
+                }
+            }
+            IsTextBoxTextChangedFromUI = false;
+            doSymetric.ForEach(item =>
+            {
+                AdjacencyTableTextBox[item.Item1, item.Item2].Text = (short.Parse(AdjacencyTableTextBox[item.Item1, item.Item2].Text) + 1).ToString();
+                MatrixAdjacencyTable[item.Item1, item.Item2]++;
+            });
+            IsTextBoxTextChangedFromUI = true;
+            return new Tuple<short[,], TextBox[,]>(MatrixAdjacencyTable, AdjacencyTableTextBox);
         }
     }
 }
