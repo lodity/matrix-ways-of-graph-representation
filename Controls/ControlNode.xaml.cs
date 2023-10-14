@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using CDM_Lab_3._1.Models.Graph;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -17,12 +18,14 @@ namespace CDM_Lab_3._1.Controls
         private Point CurrentPos;
         private Point CurrentMousePosition;
         public int index;
-        public ControlNode(int index, Point point)
+        public Node node;
+        public ControlNode(Node node, Point point)
         {
             InitializeComponent();
             isSeleted = false;
             Panel.SetZIndex(this, 2);
-            this.index = index;
+            this.node = node;
+            this.index = node.Id;
             Text.Text = $"x{index}";
             RenderTransform = new TranslateTransform();
             ((TranslateTransform)RenderTransform).X = point.X;

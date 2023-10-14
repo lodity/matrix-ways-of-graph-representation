@@ -92,7 +92,7 @@ namespace CDM_Lab_3._1.View
                                 nodeSectors[horizontalPos, verticalPos] = true;
                                 break;
                             }
-                ControlNode controlNode = new(i, new Point((horizontalPos + 1) * 40 - Width / 2, (verticalPos + 1) * 40 - Height / 2));
+                ControlNode controlNode = new(_graph.Nodes[i], new Point((horizontalPos + 1) * 40 - Width / 2, (verticalPos + 1) * 40 - Height / 2));
                 controlNode.Selected += ControlNode_Selected;
                 controlNodes.Add(controlNode);
 
@@ -144,13 +144,10 @@ namespace CDM_Lab_3._1.View
             {
                 _graph.Nodes[controlNodeSelected.index].AddChild(_graph.Nodes[((ControlNode)borderSender.Parent).index], GraphTypeCurrent != GraphType.Undirected);
                 //TODO fix edgeOffset and edgeMultipleOffset when loop
-                int edgeOffset = 1;
                 int edgeOffsetMax = _graph.Nodes[controlNodeSelected.index].Edges.Count;
                 bool isLoop = controlNodeSelected == (ControlNode)borderSender.Parent;
-                if (isLoop)
-                    edgeOffset = edgeOffsetMax;
                 ControlEdge controlEdge = new(controlNodeSelected, (ControlNode)borderSender.Parent, new Point(Field.Width, Field.Height),
-                        isLoop, edgeCount++, edgeOffset, edgeOffsetMax, GraphTypeCurrent,
+                        isLoop, edgeCount++, -1, edgeOffsetMax, GraphTypeCurrent,
                         _graph.Nodes[controlNodeSelected.index].Edges[_graph.Nodes[controlNodeSelected.index].Edges.Count - 1]);
                 Field.Children.Add(controlEdge);
                 controlNodeSelected.Select(false);
@@ -164,7 +161,7 @@ namespace CDM_Lab_3._1.View
             if (spawnPoint != new Point(0, 0) && e.ClickCount == 2 && e.ChangedButton == MouseButton.Left && sender != Field)
             {
                 _graph.AddNode();
-                ControlNode controlNode = new(_graph.Nodes.Count - 1, new Point(spawnPoint.X - Width / 2, spawnPoint.Y - Height / 2));
+                ControlNode controlNode = new(_graph.Nodes[_graph.Nodes.Count - 1], new Point(spawnPoint.X - Width / 2, spawnPoint.Y - Height / 2));
                 controlNode.Selected += ControlNode_Selected;
                 controlNodes.Add(controlNode);
                 Field.Children.Add(controlNode);

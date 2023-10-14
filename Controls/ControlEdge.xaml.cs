@@ -17,8 +17,7 @@ namespace CDM_Lab_3._1.Controls
         GraphType GraphTypeCurrent;
         public bool IsLoop;
         private bool IsSingleOriented;
-        double EdgeEndRadius;
-        readonly double EdgeOffset;
+        double EdgeOffset;
         readonly int EdgeOffsetMax;
         readonly double HalfOfWindowWidth;
         readonly double HalfOfWindowHeight;
@@ -37,9 +36,6 @@ namespace CDM_Lab_3._1.Controls
             HalfOfWindowWidth = window.X / 2;
             HalfOfWindowHeight = window.Y / 2;
             EdgeOffset = edgeOffset;
-
-            EdgeEndRadius = 700 + EdgeOffset / edgeOffsetMax * 1200;
-            EdgeEnd.Size = new Size(EdgeEndRadius, EdgeEndRadius);
             EdgeName.Text = $"{number}";
             nodeStart.Moved += UpdateHandler;
             nodeEnd.Moved += UpdateHandler;
@@ -65,6 +61,10 @@ namespace CDM_Lab_3._1.Controls
             EdgeStart.StartPoint = new Point(NodeStartPosX + HalfOfWindowWidth, NodeStartPosY + HalfOfWindowHeight);
             if (IsLoop)
             {
+                if (EdgeOffset == -1)
+                {
+                    EdgeOffset = EdgeOffsetMax;
+                }
                 double EdgeEndSizeCoeff = EdgeOffset * 1.8;
                 EdgeEnd.IsLargeArc = true;
                 EdgeEnd.Point = new(NodeStartPosX + HalfOfWindowWidth + 5, NodeStartPosY + HalfOfWindowHeight + 5);
@@ -86,13 +86,24 @@ namespace CDM_Lab_3._1.Controls
             }
             else
             {
+                double edgeEndRadius;
+                if (EdgeOffset == -1)
+                {
+                    edgeEndRadius = 500 + (EdgeOffsetMax) * 300;
+                }
+                else
+                {
+                    edgeEndRadius = 700 + EdgeOffset / EdgeOffsetMax * 1200;
+                }
+                EdgeEnd.Size = new Size(edgeEndRadius, edgeEndRadius);
+
                 EdgeEnd.Point = new(NodeEndPosX + HalfOfWindowWidth, NodeEndPosY + HalfOfWindowHeight);
 
                 double straightLength =
                     Math.Sqrt(Math.Pow(NodeStartPosX - NodeEndPosX, 2) + Math.Pow(NodeStartPosY - NodeEndPosY, 2));
                 double halfOfStraightLength = straightLength / 2;
-                double offsetFromCenter = Math.Sqrt(Math.Pow(EdgeEndRadius, 2) - Math.Pow(halfOfStraightLength, 2));
-                double offset = double.IsNaN(offsetFromCenter) ? straightLength / 2 : EdgeEndRadius - offsetFromCenter;
+                double offsetFromCenter = Math.Sqrt(Math.Pow(edgeEndRadius, 2) - Math.Pow(halfOfStraightLength, 2));
+                double offset = double.IsNaN(offsetFromCenter) ? straightLength / 2 : edgeEndRadius - offsetFromCenter;
 
                 Vector ortogonal = new(-NodeEndPosY + NodeStartPosY, NodeEndPosX - NodeStartPosX);
                 ortogonal.Normalize();
