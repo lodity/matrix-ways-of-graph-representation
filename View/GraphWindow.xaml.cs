@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace CDM_Lab_3._1.View
 {
@@ -17,19 +18,19 @@ namespace CDM_Lab_3._1.View
         ControlNode? controlNodeSelected;
         Random randomGlobal = new();
         Graph _graph;
-        GraphType graphTypeCurrent;
+        public GraphType GraphTypeCurrent;
         int horizontalSectorsMax;
         int verticalSectorsMax;
         int edgeCount;
         bool[,] nodeSectors;
-        ControlNode[] controlNodes;
-        public GraphWindow(Graph graph, GraphType GraphTypeCurrent)
+        List<ControlNode> controlNodes;
+        public GraphWindow(Graph graph, GraphType graphTypeCurrent)
         {
             InitializeComponent();
 
             _graph = graph;
-            graphTypeCurrent = GraphTypeCurrent;
-            controlNodes = new ControlNode[_graph.Count];
+            GraphTypeCurrent = graphTypeCurrent;
+            controlNodes = new List<ControlNode>();
             horizontalSectorsMax = (int)Math.Floor(Field.Width / 40) - 1;
             verticalSectorsMax = (int)Math.Floor(Field.Height / 40) - 1;
             nodeSectors = new bool[horizontalSectorsMax, verticalSectorsMax];
@@ -44,7 +45,7 @@ namespace CDM_Lab_3._1.View
             {
                 _graph = value;
                 Field.Children.Clear();
-                controlNodes = new ControlNode[_graph.Count];
+                controlNodes = new List<ControlNode>();
                 nodeSectors = new bool[horizontalSectorsMax, verticalSectorsMax];
 
                 BuildNodes();
@@ -93,7 +94,7 @@ namespace CDM_Lab_3._1.View
                             }
                 ControlNode controlNode = new(i, new Point((horizontalPos + 1) * 40 - Width / 2, (verticalPos + 1) * 40 - Height / 2));
                 controlNode.Selected += ControlNode_Selected;
-                controlNodes[i] = controlNode;
+                controlNodes.Add(controlNode);
 
                 Field.Children.Add(controlNode);
             }
@@ -101,7 +102,7 @@ namespace CDM_Lab_3._1.View
         private void BuildEdges()
         {
             edgeCount = 0;
-            for (int i = 0; i < controlNodes.Length; i++)
+            for (int i = 0; i < controlNodes.Count; i++)
             {
                 List<Tuple<int, Node>> children = _graph.Nodes[i].Children;
                 Dictionary<int, int> edges = new();
@@ -125,7 +126,7 @@ namespace CDM_Lab_3._1.View
                 for (int j = 0; j < children.Count; j++)
                 {
                     ControlEdge controlEdge = new(controlNodes[i], controlNodes[children[j].Item2.Id], new Point(Field.Width, Field.Height),
-                        children[j].Item2.Id == _graph.Nodes[controlNodes[i].index].Id, edgeCount++, edgeOffsetList[j], edgeMultipleOffsetMax, graphTypeCurrent,
+                        children[j].Item2.Id == _graph.Nodes[controlNodes[i].index].Id, edgeCount++, edgeOffsetList[j], edgeMultipleOffsetMax, GraphTypeCurrent,
                         _graph.Nodes[i].Edges[j]);
                     Field.Children.Add(controlEdge);
                 }
@@ -141,7 +142,7 @@ namespace CDM_Lab_3._1.View
             }
             else
             {
-                _graph.Nodes[controlNodeSelected.index].AddChild(_graph.Nodes[((ControlNode)borderSender.Parent).index], graphTypeCurrent != GraphType.Undirected);
+                _graph.Nodes[controlNodeSelected.index].AddChild(_graph.Nodes[((ControlNode)borderSender.Parent).index], GraphTypeCurrent != GraphType.Undirected);
                 //TODO fix edgeOffset and edgeMultipleOffset when loop
                 int edgeOffset = 1;
                 int edgeOffsetMax = _graph.Nodes[controlNodeSelected.index].Edges.Count;
@@ -149,12 +150,24 @@ namespace CDM_Lab_3._1.View
                 if (isLoop)
                     edgeOffset = edgeOffsetMax;
                 ControlEdge controlEdge = new(controlNodeSelected, (ControlNode)borderSender.Parent, new Point(Field.Width, Field.Height),
-                        isLoop, edgeCount++, edgeOffset, edgeOffsetMax, graphTypeCurrent,
+                        isLoop, edgeCount++, edgeOffset, edgeOffsetMax, GraphTypeCurrent,
                         _graph.Nodes[controlNodeSelected.index].Edges[_graph.Nodes[controlNodeSelected.index].Edges.Count - 1]);
                 Field.Children.Add(controlEdge);
                 controlNodeSelected.Select(false);
                 controlNodeSelected = null;
                 GraphChanged?.Invoke(this, new RoutedEventArgs());
+            }
+        }
+        private void Field_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            Point spawnPoint = e.GetPosition(this);
+            if (spawnPoint != new Point(0, 0) && e.ClickCount == 2 && e.ChangedButton == MouseButton.Left && sender != Field)
+            {
+                _graph.AddNode();
+                ControlNode controlNode = new(_graph.Nodes.Count - 1, new Point(spawnPoint.X - Width / 2, spawnPoint.Y - Height / 2));
+                controlNode.Selected += ControlNode_Selected;
+                controlNodes.Add(controlNode);
+                Field.Children.Add(controlNode);
             }
         }
 

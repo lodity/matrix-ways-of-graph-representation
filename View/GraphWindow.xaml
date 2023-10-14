@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         WindowStyle="None"
         ResizeMode="NoResize"
-        Title="GraphWindow" Width="1200" Height="820" >
+        Title="GraphWindow" Width="1200" Height="820" MouseLeftButtonDown="Field_MouseDoubleClick" >
     <StackPanel>
             <Border x:Name="TopBar" Height="20px" Background="AliceBlue" MouseDown="TopBar_MouseDown">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
@@ -15,7 +15,7 @@
                 <Button x:Name="WindowClose" Width="20" Click="WindowClose_Click">X</Button>
                 </StackPanel>
             </Border>
-        <Grid x:Name="Field" Width="1200" Height="800" ClipToBounds="True">
+        <Grid x:Name="Field" Width="1200" Height="800" ClipToBounds="True" MouseDown="Field_MouseDoubleClick">
         
         </Grid>
     </StackPanel>

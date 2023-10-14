@@ -59,6 +59,8 @@ namespace CDM_Lab_3._1
             ClearGrid(GridIncidenceTable);
             if (MatrixAdjacencyTable != null)
                 UpdateIncidenceTable(IncidenceAccessType.AdjacencyTable);
+            if (graphWindow != null)
+                graphWindow.GraphTypeCurrent = GraphTypeCurrent;
         }
         private void OnlyNumbersValidation_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
@@ -99,6 +101,13 @@ namespace CDM_Lab_3._1
         {
             ClearGrid(GridIncidenceTable);
 
+            Graph graph;
+            if (accessType == IncidenceAccessType.AdjacencyTable || graphWindow == null)
+                graph = CreateGraph_AdjacencyBased();
+            else
+                graph = graphWindow.Graph;
+            NodeCount = graph.Count;
+
             for (short i = 0; i < NodeCount + 1; i++)
                 GridIncidenceTable.RowDefinitions.Add(new RowDefinition { Height = new GridLength(24, GridUnitType.Pixel) });
             GridIncidenceTable.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32, GridUnitType.Pixel) });
@@ -108,11 +117,6 @@ namespace CDM_Lab_3._1
                 Label label = UiUtils.CreateTableLabel($"x{i - 1}", new Tuple<int, int>(i, 0));
                 GridIncidenceTable.Children.Add(label);
             }
-            Graph graph;
-            if (accessType == IncidenceAccessType.AdjacencyTable || graphWindow == null)
-                graph = CreateGraph_AdjacencyBased();
-            else
-                graph = graphWindow.Graph;
             foreach (Node node in graph)
             {
                 for (int i = 0; i < node.Children.Count; i++)
