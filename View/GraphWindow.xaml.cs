@@ -143,12 +143,11 @@ namespace CDM_Lab_3._1.View
             else
             {
                 _graph.Nodes[controlNodeSelected.index].AddChild(_graph.Nodes[((ControlNode)borderSender.Parent).index], GraphTypeCurrent != GraphType.Undirected);
-                //TODO fix edgeOffset and edgeMultipleOffset when loop
                 int edgeOffsetMax = _graph.Nodes[controlNodeSelected.index].Edges.Count;
                 bool isLoop = controlNodeSelected == (ControlNode)borderSender.Parent;
                 ControlEdge controlEdge = new(controlNodeSelected, (ControlNode)borderSender.Parent, new Point(Field.Width, Field.Height),
                         isLoop, edgeCount++, -1, edgeOffsetMax, GraphTypeCurrent,
-                        _graph.Nodes[controlNodeSelected.index].Edges[_graph.Nodes[controlNodeSelected.index].Edges.Count - 1]);
+                        _graph.Nodes[controlNodeSelected.index].Edges[^1]);
                 Field.Children.Add(controlEdge);
                 controlNodeSelected.Select(false);
                 controlNodeSelected = null;
@@ -161,7 +160,7 @@ namespace CDM_Lab_3._1.View
             if (spawnPoint != new Point(0, 0) && e.ClickCount == 2 && e.ChangedButton == MouseButton.Left && sender != Field)
             {
                 _graph.AddNode();
-                ControlNode controlNode = new(_graph.Nodes[_graph.Nodes.Count - 1], new Point(spawnPoint.X - Width / 2, spawnPoint.Y - Height / 2));
+                ControlNode controlNode = new(_graph.Nodes[^1], new Point(spawnPoint.X - Width / 2, spawnPoint.Y - Height / 2));
                 controlNode.Selected += ControlNode_Selected;
                 controlNodes.Add(controlNode);
                 Field.Children.Add(controlNode);

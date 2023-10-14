@@ -108,7 +108,6 @@ namespace CDM_Lab_3._1.Controls
                 Vector ortogonal = new(-NodeEndPosY + NodeStartPosY, NodeEndPosX - NodeStartPosX);
                 ortogonal.Normalize();
                 ortogonal.Negate();
-                // TODO textPos depends on EdgeMultipleOffset
                 Point textPos = new(((NodeEndPosX + NodeStartPosX) / 2) + ortogonal.X * offset,
                                             ((NodeEndPosY + NodeStartPosY) / 2) + ortogonal.Y * offset);
                 SetTextPoint(textPos);

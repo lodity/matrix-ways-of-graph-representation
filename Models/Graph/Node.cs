@@ -9,7 +9,7 @@ namespace CDM_Lab_3._1.Models.Graph
         public int Id;
         public string Name { get => "x" + Id; }
         public List<Tuple<int, Node>> Children = new();
-        public Dictionary<int, bool> Edges = new();
+        public List<bool> Edges = new();
 
         public Node(int id, List<Tuple<int, Node>>? children = null)
         {
@@ -20,7 +20,7 @@ namespace CDM_Lab_3._1.Models.Graph
         public void AddChild(Node node, bool isEdgeSingleOriented)
         {
             Children.Add(new Tuple<int, Node>(node.Id, node));
-            Edges.Add(Children.Count - 1, isEdgeSingleOriented);
+            Edges.Add(isEdgeSingleOriented);
         }
     }
 }
