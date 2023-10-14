@@ -27,9 +27,8 @@ namespace CDM_Lab_3._1
             AdjacencyTable,
         }
 
-        GraphWindow? graphWindow;
+        GraphWindow? graphWindow = null;
         private GraphType GraphTypeCurrent { get => (GraphType)ComboBoxGraphType.SelectedIndex; }
-        private short edgeCount;
         private int NodeCount = 0;
         private short[,] MatrixAdjacencyTable;
         private TextBox[,] AdjacencyTableTextBox;
@@ -39,12 +38,10 @@ namespace CDM_Lab_3._1
             InitializeComponent();
             TextBoxNodesCount.Text = DEFAULT_NODES_COUNT;
 
-            graphWindow = null;
-            edgeCount = 0;
+            MatrixAdjacencyTable = new short[0, 0];
+            AdjacencyTableTextBox = new TextBox[0, 0];
             ButtonApplyNodesCount_Click();
-            Tuple<short[,], TextBox[,]> tuple = CreateAdjacencyTable(NodeCount);
-            MatrixAdjacencyTable = tuple.Item1;
-            AdjacencyTableTextBox = tuple.Item2;
+            CreateAdjacencyTable(NodeCount);
             if (DEFAULT_ADJACENCY_TABLE_VALUE != 0)
                 UpdateIncidenceTable(IncidenceAccessType.AdjacencyTable);
         }
@@ -169,7 +166,7 @@ namespace CDM_Lab_3._1
                 }
             }
         }
-        private Tuple<short[,], TextBox[,]> CreateAdjacencyTable(int nodeCount)
+        private void CreateAdjacencyTable(int nodeCount)
         {
             MatrixAdjacencyTable = new short[nodeCount, nodeCount];
             AdjacencyTableTextBox = new TextBox[nodeCount, nodeCount];
@@ -201,7 +198,6 @@ namespace CDM_Lab_3._1
                     }
                 }
             }
-            return new Tuple<short[,], TextBox[,]>(MatrixAdjacencyTable, AdjacencyTableTextBox);
         }
         private void ButtonApplyNodesCount_Click([Optional] object sender, [Optional] RoutedEventArgs e)
         {
@@ -229,9 +225,7 @@ namespace CDM_Lab_3._1
         private void GraphWindow_GraphChanged(object sender, RoutedEventArgs e)
         {
             UpdateIncidenceTable(IncidenceAccessType.GraphWindow);
-            Tuple<short[,], TextBox[,]> tuple = UpdateAdjacencyTable();
-            MatrixAdjacencyTable = tuple.Item1;
-            AdjacencyTableTextBox = tuple.Item2;
+            UpdateAdjacencyTable();
         }
 
         private Graph CreateGraph_AdjacencyBased()
@@ -284,7 +278,7 @@ namespace CDM_Lab_3._1
             } while (isNoZeroRemained);
             return graph;
         }
-        private Tuple<short[,], TextBox[,]> UpdateAdjacencyTable()
+        private void UpdateAdjacencyTable()
         {
             ClearGrid(GridAdjacencyTable);
 
@@ -349,7 +343,6 @@ namespace CDM_Lab_3._1
                 MatrixAdjacencyTable[item.Item1, item.Item2]++;
             });
             IsTextBoxTextChangedFromUI = true;
-            return new Tuple<short[,], TextBox[,]>(MatrixAdjacencyTable, AdjacencyTableTextBox);
         }
     }
 }

@@ -6,7 +6,7 @@ namespace CDM_Lab_3._1.Models.Graph
 {
     public class Node
     {
-        public int Id { get; set; }
+        public int Id;
         public string Name { get => "x" + Id; }
         public List<Tuple<int, Node>> Children = new();
         public Dictionary<int, bool> Edges = new();
