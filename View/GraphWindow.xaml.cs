@@ -23,8 +23,9 @@ namespace CDM_Lab_3._1.View
         int verticalSectorsMax;
         int edgeCount;
         bool[,] nodeSectors;
+        public short[,] MatrixAdjacencyTable;
         List<ControlNode> controlNodes;
-        public GraphWindow(Graph graph, GraphType graphTypeCurrent)
+        public GraphWindow(Graph graph, GraphType graphTypeCurrent, short[,] matrixAdjacencyTable)
         {
             InitializeComponent();
 
@@ -34,6 +35,7 @@ namespace CDM_Lab_3._1.View
             horizontalSectorsMax = (int)Math.Floor(Field.Width / 40) - 1;
             verticalSectorsMax = (int)Math.Floor(Field.Height / 40) - 1;
             nodeSectors = new bool[horizontalSectorsMax, verticalSectorsMax];
+            MatrixAdjacencyTable = matrixAdjacencyTable;
 
             BuildNodes();
             BuildEdges();
@@ -143,10 +145,12 @@ namespace CDM_Lab_3._1.View
             else
             {
                 _graph.Nodes[controlNodeSelected.index].AddChild(_graph.Nodes[((ControlNode)borderSender.Parent).index], GraphTypeCurrent != GraphType.Undirected);
-                int edgeOffsetMax = _graph.Nodes[controlNodeSelected.index].Edges.Count;
+                int edgeOffset = _graph.Nodes[controlNodeSelected.index].Edges.Count;
+                int edgeOffsetMax = MatrixAdjacencyTable[((ControlNode)borderSender.Parent).index, controlNodeSelected.index];
                 bool isLoop = controlNodeSelected == (ControlNode)borderSender.Parent;
+
                 ControlEdge controlEdge = new(controlNodeSelected, (ControlNode)borderSender.Parent, new Point(Field.Width, Field.Height),
-                        isLoop, edgeCount++, -1, edgeOffsetMax, GraphTypeCurrent,
+                        isLoop, edgeCount++, edgeOffset, edgeOffsetMax == 0 ? ++edgeOffsetMax : edgeOffsetMax, GraphTypeCurrent,
                         _graph.Nodes[controlNodeSelected.index].Edges[^1]);
                 Field.Children.Add(controlEdge);
                 controlNodeSelected.Select(false);

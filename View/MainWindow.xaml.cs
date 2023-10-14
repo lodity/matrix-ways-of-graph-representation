@@ -213,10 +213,14 @@ namespace CDM_Lab_3._1
         private void ButtonBuildGraph_Click(object sender, RoutedEventArgs e)
         {
             if (graphWindow != null && graphWindow.IsVisible)
+            {
                 graphWindow.Graph = CreateGraph_AdjacencyBased();
+                graphWindow.GraphTypeCurrent = GraphTypeCurrent;
+                graphWindow.MatrixAdjacencyTable = MatrixAdjacencyTable;
+            }
             else
             {
-                graphWindow = new(CreateGraph_AdjacencyBased(), GraphTypeCurrent);
+                graphWindow = new(CreateGraph_AdjacencyBased(), GraphTypeCurrent, MatrixAdjacencyTable);
                 graphWindow.Show();
                 graphWindow.GraphChanged += GraphWindow_GraphChanged;
             }

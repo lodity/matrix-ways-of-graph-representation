@@ -61,10 +61,10 @@ namespace CDM_Lab_3._1.Controls
             EdgeStart.StartPoint = new Point(NodeStartPosX + HalfOfWindowWidth, NodeStartPosY + HalfOfWindowHeight);
             if (IsLoop)
             {
-                if (EdgeOffset == -1)
-                {
-                    EdgeOffset = EdgeOffsetMax;
-                }
+                //if (EdgeOffset == -1)
+                //{
+                //    EdgeOffset = EdgeOffsetMax;
+                //}
                 double EdgeEndSizeCoeff = EdgeOffset * 1.8;
                 EdgeEnd.IsLargeArc = true;
                 EdgeEnd.Point = new(NodeStartPosX + HalfOfWindowWidth + 5, NodeStartPosY + HalfOfWindowHeight + 5);
@@ -87,11 +87,11 @@ namespace CDM_Lab_3._1.Controls
             else
             {
                 double edgeEndRadius;
-                if (EdgeOffset == -1)
-                {
-                    edgeEndRadius = 500 + (EdgeOffsetMax) * 300;
-                }
-                else
+                //if (EdgeOffset == -1)
+                //{
+                //    edgeEndRadius = 500 + (EdgeOffsetMax) * 300;
+                //}
+                //else
                 {
                     edgeEndRadius = 700 + EdgeOffset / EdgeOffsetMax * 1200;
                 }
