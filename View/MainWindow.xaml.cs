@@ -220,7 +220,7 @@ namespace CDM_Lab_3._1
             }
             else
             {
-                graphWindow = new(CreateGraph_AdjacencyBased(), GraphTypeCurrent, MatrixAdjacencyTable);
+                graphWindow = new(CreateGraph_AdjacencyBased(), GraphTypeCurrent, ref MatrixAdjacencyTable);
                 graphWindow.Show();
                 graphWindow.GraphChanged += GraphWindow_GraphChanged;
             }

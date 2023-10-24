@@ -25,7 +25,7 @@ namespace CDM_Lab_3._1.View
         bool[,] nodeSectors;
         public short[,] MatrixAdjacencyTable;
         List<ControlNode> controlNodes;
-        public GraphWindow(Graph graph, GraphType graphTypeCurrent, short[,] matrixAdjacencyTable)
+        public GraphWindow(Graph graph, GraphType graphTypeCurrent, ref short[,] matrixAdjacencyTable)
         {
             InitializeComponent();
 
@@ -164,10 +164,22 @@ namespace CDM_Lab_3._1.View
             if (spawnPoint != new Point(0, 0) && e.ClickCount == 2 && e.ChangedButton == MouseButton.Left && sender != Field)
             {
                 _graph.AddNode();
+                short[,] MatrixAdjacencyTableCopy = new short[_graph.Count, _graph.Count];
+                for (int i = 0; i < _graph.Count; i++)
+                {
+                    for (int j = 0; j < _graph.Count; j++)
+                    {
+                        if (Math.Sqrt(MatrixAdjacencyTable.Length) > i && Math.Sqrt(MatrixAdjacencyTable.Length) > j)
+                            MatrixAdjacencyTableCopy[i, j] = MatrixAdjacencyTable[i, j];
+                        else MatrixAdjacencyTableCopy[i, j] = 0;
+                    }
+                }
+                MatrixAdjacencyTable = MatrixAdjacencyTableCopy;
                 ControlNode controlNode = new(_graph.Nodes[^1], new Point(spawnPoint.X - Width / 2, spawnPoint.Y - Height / 2));
                 controlNode.Selected += ControlNode_Selected;
                 controlNodes.Add(controlNode);
                 Field.Children.Add(controlNode);
+                GraphChanged?.Invoke(this, new RoutedEventArgs());
             }
         }
 

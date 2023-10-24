@@ -21,7 +21,7 @@ namespace CDM_Lab_3._1.Models.Graph
         }
         public void AddNode()
         {
-            Node node = new(Nodes.Count - 1);
+            Node node = new(Nodes.Count);
             Nodes.Add(node);
         }
         public IEnumerator GetEnumerator()
