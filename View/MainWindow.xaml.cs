@@ -98,9 +98,10 @@ namespace CDM_Lab_3._1
         }
         private void UpdateIncidenceTable(IncidenceAccessType accessType, [Optional] int nodeIndexFrom, [Optional] int nodeIndexTo)
         {
-            // TODO oprimaze
             if (accessType == IncidenceAccessType.GraphWindow_NodeAdded)
             {
+                if (GridIncidenceTable.ColumnDefinitions.Count < 2)
+                    return;
                 GridIncidenceTable.RowDefinitions.Add(new RowDefinition { Height = new GridLength(24, GridUnitType.Pixel) });
                 Label label = UiUtils.CreateTableLabel($"x{NodeCount - 1}", new Tuple<int, int>(NodeCount, 0));
                 GridIncidenceTable.Children.Add(label);
@@ -114,6 +115,17 @@ namespace CDM_Lab_3._1
             }
             if (accessType == IncidenceAccessType.GraphWindow_EdgeAdded)
             {
+                if (GridIncidenceTable.ColumnDefinitions.Count < 2)
+                {
+                    GridIncidenceTable.RowDefinitions.Add(new RowDefinition { Height = new GridLength(24, GridUnitType.Pixel) });
+                    GridIncidenceTable.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32, GridUnitType.Pixel) });
+                    for (int i = 1; i < NodeCount + 1; i++)
+                    {
+                        GridIncidenceTable.RowDefinitions.Add(new RowDefinition { Height = new GridLength(24, GridUnitType.Pixel) });
+                        Label labelX = UiUtils.CreateTableLabel($"x{i}", new Tuple<int, int>(i, 0));
+                        GridIncidenceTable.Children.Add(labelX);
+                    }
+                }
                 GridIncidenceTable.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32, GridUnitType.Pixel) });
                 Label label = UiUtils.CreateTableLabel($"a{GridIncidenceTable.ColumnDefinitions.Count - 2}", new Tuple<int, int>(0, GridIncidenceTable.ColumnDefinitions.Count - 1));
                 GridIncidenceTable.Children.Add(label);
