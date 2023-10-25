@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using static CDM_Lab_3._1.View.GraphWindow;
 
 namespace CDM_Lab_3._1
 {
@@ -21,10 +22,11 @@ namespace CDM_Lab_3._1
         const short DEFAULT_ADJACENCY_TABLE_VALUE = 0; // 0 - no edge, 1 - edge
         #endregion
 
-        private enum IncidenceAccessType
+        public enum IncidenceAccessType
         {
-            GraphWindow,
             AdjacencyTable,
+            GraphWindow_EdgeAdded,
+            GraphWindow_NodeAdded
         }
 
         GraphWindow? graphWindow = null;
@@ -94,8 +96,40 @@ namespace CDM_Lab_3._1
 
             UpdateIncidenceTable(IncidenceAccessType.AdjacencyTable);
         }
-        private void UpdateIncidenceTable(IncidenceAccessType accessType)
+        private void UpdateIncidenceTable(IncidenceAccessType accessType, [Optional] int nodeIndexFrom, [Optional] int nodeIndexTo)
         {
+            // TODO oprimaze
+            if (accessType == IncidenceAccessType.GraphWindow_NodeAdded)
+            {
+                GridIncidenceTable.RowDefinitions.Add(new RowDefinition { Height = new GridLength(24, GridUnitType.Pixel) });
+                Label label = UiUtils.CreateTableLabel($"x{NodeCount - 1}", new Tuple<int, int>(NodeCount, 0));
+                GridIncidenceTable.Children.Add(label);
+
+                for (int i = 1; i < GridIncidenceTable.ColumnDefinitions.Count; i++)
+                {
+                    TextBox textBox = UiUtils.CreateTableTextBox(null, new Tuple<int, int>(NodeCount, i), 0, 2);
+                    GridIncidenceTable.Children.Add(textBox);
+                }
+                return;
+            }
+            if (accessType == IncidenceAccessType.GraphWindow_EdgeAdded)
+            {
+                GridIncidenceTable.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32, GridUnitType.Pixel) });
+                Label label = UiUtils.CreateTableLabel($"a{GridIncidenceTable.ColumnDefinitions.Count - 2}", new Tuple<int, int>(0, GridIncidenceTable.ColumnDefinitions.Count - 1));
+                GridIncidenceTable.Children.Add(label);
+
+                for (int i = 1; i < NodeCount + 1; i++)
+                {
+                    int textBoxValue = 0;
+                    if (nodeIndexFrom == i - 1)
+                        textBoxValue = 1;
+                    if (nodeIndexTo == i - 1)
+                        textBoxValue = GraphTypeCurrent == GraphType.Undirected ? 1 : -1;
+                    TextBox textBox = UiUtils.CreateTableTextBox(null, new Tuple<int, int>(i, GridIncidenceTable.ColumnDefinitions.Count - 1), textBoxValue, 2);
+                    GridIncidenceTable.Children.Add(textBox);
+                }
+                return;
+            }
             ClearGrid(GridIncidenceTable);
 
             Graph graph;
@@ -226,9 +260,12 @@ namespace CDM_Lab_3._1
             }
         }
 
-        private void GraphWindow_GraphChanged(object sender, RoutedEventArgs e)
+        private void GraphWindow_GraphChanged(object sender, GraphChangedArgs graphChangedArgs)
         {
-            UpdateIncidenceTable(IncidenceAccessType.GraphWindow);
+            GraphWindow graphWindow = ((GraphWindow)sender);
+            Graph graph = graphWindow.Graph;
+            NodeCount = graph.Count;
+            UpdateIncidenceTable(graphWindow.IncedenceAction, graphChangedArgs.NodeIndexFrom, graphChangedArgs.NodeIndexTo);
             UpdateAdjacencyTable();
         }
 
