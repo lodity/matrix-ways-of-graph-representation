@@ -14,7 +14,8 @@ namespace CDM_Lab_3._1.Controls
         public bool isSeleted;
         public int CountOfLoops;
         public event RoutedEventHandler? Moved;
-        public event RoutedEventHandler? Selected;
+        public event RoutedEventHandler? SelectToAddEdge;
+        public event RoutedEventHandler? SelectToRemoveEdge;
         private Point CurrentPos;
         private Point CurrentMousePosition;
         public int index;
@@ -35,6 +36,10 @@ namespace CDM_Lab_3._1.Controls
         {
             get => new(((TranslateTransform)RenderTransform).X, ((TranslateTransform)RenderTransform).Y);
         }
+        public enum NodeSelectType
+        {
+            Add, Remove
+        }
         private void NodeBorder_MouseMove(object sender, MouseEventArgs e)
         {
             Vector diff = e.GetPosition(Parent as Window) - CurrentMousePosition;
@@ -49,18 +54,20 @@ namespace CDM_Lab_3._1.Controls
                 Moved?.Invoke(sender, e);
             }
         }
-        public void Select(bool isSelected)
+        public void SelectAddEdge()
         {
-            if (isSelected)
-            {
-                ChangeBorderColor(new BrushConverter().ConvertFrom("#45b500") as SolidColorBrush);
-                ChangeBorderThickness(new Thickness(3));
-            }
-            else
-            {
-                ChangeBorderColor(Brushes.White);
-                ChangeBorderThickness(new Thickness(1));
-            }
+            ChangeBorderColor(new BrushConverter().ConvertFrom("#45b500") as SolidColorBrush);
+            ChangeBorderThickness(new Thickness(3));
+        }
+        public void SelectRemoveEdge()
+        {
+            ChangeBorderColor(new BrushConverter().ConvertFrom("#b50000") as SolidColorBrush);
+            ChangeBorderThickness(new Thickness(3));
+        }
+        public void SelectClear()
+        {
+            ChangeBorderColor(Brushes.White);
+            ChangeBorderThickness(new Thickness(1));
         }
         private void ChangeBorderColor(SolidColorBrush borderColor)
         {
@@ -82,7 +89,12 @@ namespace CDM_Lab_3._1.Controls
         }
         private void NodeBorder_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            Selected?.Invoke(sender, e);
+            if (Keyboard.IsKeyDown(Key.LeftShift))
+            {
+                SelectToRemoveEdge?.Invoke(sender, e);
+                return;
+            }
+            SelectToAddEdge?.Invoke(sender, e);
         }
     }
 }

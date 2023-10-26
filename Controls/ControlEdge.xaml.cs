@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using static CDM_Lab_3._1.Models.Graph.Node;
 
 namespace CDM_Lab_3._1.Controls
 {
@@ -15,8 +16,7 @@ namespace CDM_Lab_3._1.Controls
         public ControlNode NodeStart;
         public ControlNode NodeEnd;
         GraphType GraphTypeCurrent;
-        public bool IsLoop;
-        private bool IsSingleOriented;
+        private EdgeType edgeType;
         double EdgeOffset;
         readonly int EdgeOffsetMax;
         readonly double HalfOfWindowWidth;
@@ -29,7 +29,7 @@ namespace CDM_Lab_3._1.Controls
         readonly Vector vectorX = new(1, 0);
 
 
-        public ControlEdge(ControlNode nodeStart, ControlNode nodeEnd, Point window, bool isLoop, int number, double edgeOffset, int edgeOffsetMax, GraphType graphTypeCurrent, bool isSingleOriented)
+        public ControlEdge(ControlNode nodeStart, ControlNode nodeEnd, Point window, int number, double edgeOffset, int edgeOffsetMax, GraphType graphTypeCurrent, EdgeType edgeType)
         {
             InitializeComponent();
 
@@ -41,10 +41,9 @@ namespace CDM_Lab_3._1.Controls
             nodeEnd.Moved += UpdateHandler;
 
             GraphTypeCurrent = graphTypeCurrent;
-            IsSingleOriented = isSingleOriented;
+            this.edgeType = edgeType;
             NodeStart = nodeStart;
             NodeEnd = nodeEnd;
-            IsLoop = isLoop;
             EdgeOffsetMax = edgeOffsetMax;
 
 
@@ -59,7 +58,7 @@ namespace CDM_Lab_3._1.Controls
             NodeEndPosY = NodeEnd.Position.Y;
 
             EdgeStart.StartPoint = new Point(NodeStartPosX + HalfOfWindowWidth, NodeStartPosY + HalfOfWindowHeight);
-            if (IsLoop)
+            if (edgeType == EdgeType.Loop)
             {
                 //if (EdgeOffset == -1)
                 //{
@@ -113,7 +112,7 @@ namespace CDM_Lab_3._1.Controls
                 SetTextPoint(textPos);
 
 
-                if (IsSingleOriented)
+                if (edgeType == EdgeType.Directed)
                 {
                     Vector straightVector = new(NodeEndPosX - NodeStartPosX, NodeEndPosY - NodeStartPosY);
                     double angleToRadius = Math.Atan2(offsetFromCenter, halfOfStraightLength);

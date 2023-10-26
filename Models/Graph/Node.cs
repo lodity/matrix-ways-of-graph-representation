@@ -9,7 +9,14 @@ namespace CDM_Lab_3._1.Models.Graph
         public int Id;
         public string Name { get => "x" + Id; }
         public List<Tuple<int, Node>> Children = new();
-        public List<bool> Edges = new();
+        public List<Tuple<int, EdgeType>> Edges = new();
+
+        public enum EdgeType
+        {
+            Loop,
+            Directed,
+            Undirected
+        }
 
         public Node(int id, List<Tuple<int, Node>>? children = null)
         {
@@ -17,10 +24,14 @@ namespace CDM_Lab_3._1.Models.Graph
             if (children != null)
                 Children = (List<Tuple<int, Node>>)Children.Concat(children);
         }
-        public void AddChild(Node node, bool isEdgeSingleOriented)
+        public void AddChild(Node node, Tuple<int, EdgeType> edge)
         {
             Children.Add(new Tuple<int, Node>(node.Id, node));
-            Edges.Add(isEdgeSingleOriented);
+            Edges.Add(edge);
+        }
+        public void RemoveChild(int childIndex)
+        {
+
         }
     }
 }

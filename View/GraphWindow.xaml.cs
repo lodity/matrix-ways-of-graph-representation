@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using static CDM_Lab_3._1.MainWindow;
+using static CDM_Lab_3._1.Models.Graph.Node;
 
 namespace CDM_Lab_3._1.View
 {
@@ -17,7 +18,8 @@ namespace CDM_Lab_3._1.View
     {
         public event EventHandler<GraphChangedArgs>? GraphChanged;
         public IncidenceAccessType IncedenceAction;
-        ControlNode? controlNodeSelected;
+        ControlNode? controlNodeSelected_Add;
+        ControlNode? controlNodeSelected_Remove;
         readonly Random randomGlobal = new();
         Graph _graph;
         public GraphType GraphTypeCurrent;
@@ -103,7 +105,9 @@ namespace CDM_Lab_3._1.View
                                 break;
                             }
                 ControlNode controlNode = new(_graph.Nodes[i], new Point((horizontalPos + 1) * 40 - Width / 2, (verticalPos + 1) * 40 - Height / 2));
-                controlNode.Selected += ControlNode_Selected;
+                controlNode.SelectToAddEdge += ControlNode_SelectedToAddEdge;
+                controlNode.SelectToRemoveEdge += ControlNode_SelectedToRemoveEdge;
+
                 controlNodes.Add(controlNode);
 
                 Field.Children.Add(controlNode);
@@ -135,42 +139,57 @@ namespace CDM_Lab_3._1.View
                 }
                 for (int j = 0; j < children.Count; j++)
                 {
+                    bool isLoop = children[j].Item2.Id == _graph.Nodes[controlNodes[i].index].Id;
                     ControlEdge controlEdge = new(controlNodes[i], controlNodes[children[j].Item2.Id], new Point(Field.Width, Field.Height),
-                        children[j].Item2.Id == _graph.Nodes[controlNodes[i].index].Id, edgeCount++, edgeOffsetList[j], edgeMultipleOffsetMax, GraphTypeCurrent,
-                        _graph.Nodes[i].Edges[j]);
+                        edgeCount++, edgeOffsetList[j], edgeMultipleOffsetMax, GraphTypeCurrent,
+                        isLoop ? EdgeType.Loop : _graph.Nodes[i].Edges[j].Item2);
                     Field.Children.Add(controlEdge);
                 }
             }
         }
-        private void ControlNode_Selected(object sender, RoutedEventArgs e)
+        private void ControlNode_SelectedToAddEdge(object sender, RoutedEventArgs e)
         {
             ControlNode nodeTo = (ControlNode)((Border)sender).Parent;
-            if (controlNodeSelected == null)
+            if (controlNodeSelected_Add == null)
             {
-                controlNodeSelected = nodeTo;
-                controlNodeSelected.Select(true);
+                controlNodeSelected_Add = nodeTo;
+                controlNodeSelected_Add.SelectAddEdge();
             }
             else
             {
-                _graph.Nodes[controlNodeSelected.index].AddChild(_graph.Nodes[nodeTo.index], GraphTypeCurrent != GraphType.Undirected);
-                int edgeOffset = _graph.Nodes[controlNodeSelected.index].Edges.Count;
-                int edgeOffsetMax = MatrixAdjacencyTable[nodeTo.index, controlNodeSelected.index];
-                bool isLoop = controlNodeSelected == nodeTo;
+                bool isLoop = controlNodeSelected_Add == nodeTo;
+                EdgeType edgeType = GraphTypeCurrent == GraphType.Undirected ? EdgeType.Undirected : EdgeType.Directed;
+                _graph.Nodes[controlNodeSelected_Add.index].AddChild(_graph.Nodes[nodeTo.index], new Tuple<int, EdgeType>(edgeCount, isLoop ? EdgeType.Loop : edgeType));
+                int edgeOffset = _graph.Nodes[controlNodeSelected_Add.index].Edges.Count;
+                int edgeOffsetMax = MatrixAdjacencyTable[nodeTo.index, controlNodeSelected_Add.index];
 
-                ControlEdge controlEdge = new(controlNodeSelected, nodeTo, new Point(Field.Width, Field.Height),
-                        isLoop, edgeCount++, edgeOffset, edgeOffsetMax == 0 ? ++edgeOffsetMax : edgeOffsetMax, GraphTypeCurrent,
-                        _graph.Nodes[controlNodeSelected.index].Edges[^1]);
+                ControlEdge controlEdge = new(controlNodeSelected_Add, nodeTo, new Point(Field.Width, Field.Height),
+                         edgeCount++, edgeOffset, edgeOffsetMax == 0 ? ++edgeOffsetMax : edgeOffsetMax, GraphTypeCurrent,
+                        isLoop ? EdgeType.Loop : _graph.Nodes[controlNodeSelected_Add.index].Edges[^1].Item2);
                 Field.Children.Add(controlEdge);
                 IncedenceAction = IncidenceAccessType.GraphWindow_EdgeAdded;
                 GraphChangedArgs graphChangedArgs = new()
                 {
                     AccessType = IncidenceAccessType.GraphWindow_EdgeAdded,
-                    NodeIndexFrom = controlNodeSelected.index,
+                    NodeIndexFrom = controlNodeSelected_Add.index,
                     NodeIndexTo = nodeTo.index
                 };
                 GraphChanged?.Invoke(this, graphChangedArgs);
-                controlNodeSelected.Select(false);
-                controlNodeSelected = null;
+                controlNodeSelected_Add.SelectClear();
+                controlNodeSelected_Add = null;
+            }
+        }
+        private void ControlNode_SelectedToRemoveEdge(object sender, RoutedEventArgs e)
+        {
+            ControlNode nodeTo = (ControlNode)((Border)sender).Parent;
+            if (controlNodeSelected_Remove == null)
+            {
+                controlNodeSelected_Remove = nodeTo;
+                controlNodeSelected_Remove.SelectRemoveEdge();
+            }
+            else
+            {
+
             }
         }
         private void Field_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -191,7 +210,8 @@ namespace CDM_Lab_3._1.View
                 }
                 MatrixAdjacencyTable = MatrixAdjacencyTableCopy;
                 ControlNode controlNode = new(_graph.Nodes[^1], new Point(spawnPoint.X - Width / 2, spawnPoint.Y - Height / 2));
-                controlNode.Selected += ControlNode_Selected;
+                controlNode.SelectToAddEdge += ControlNode_SelectedToAddEdge;
+                controlNode.SelectToRemoveEdge += ControlNode_SelectedToRemoveEdge;
                 controlNodes.Add(controlNode);
                 Field.Children.Add(controlNode);
                 IncedenceAction = IncidenceAccessType.GraphWindow_NodeAdded;

@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using static CDM_Lab_3._1.Models.Graph.Node;
 using static CDM_Lab_3._1.View.GraphWindow;
 
 namespace CDM_Lab_3._1
@@ -129,13 +130,18 @@ namespace CDM_Lab_3._1
                 GridIncidenceTable.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32, GridUnitType.Pixel) });
                 Label label = UiUtils.CreateTableLabel($"a{GridIncidenceTable.ColumnDefinitions.Count - 2}", new Tuple<int, int>(0, GridIncidenceTable.ColumnDefinitions.Count - 1));
                 GridIncidenceTable.Children.Add(label);
-
+                bool isLoop = false;
                 for (int i = 1; i < NodeCount + 1; i++)
                 {
                     int textBoxValue = 0;
-                    if (nodeIndexFrom == i - 1)
+                    if (nodeIndexFrom == nodeIndexTo && nodeIndexTo == i - 1)
+                    {
+                        isLoop = true;
+                        textBoxValue = 2;
+                    }
+                    else if (!isLoop && nodeIndexFrom == i - 1)
                         textBoxValue = 1;
-                    if (nodeIndexTo == i - 1)
+                    else if (!isLoop && nodeIndexTo == i - 1)
                         textBoxValue = GraphTypeCurrent == GraphType.Undirected ? 1 : -1;
                     TextBox textBox = UiUtils.CreateTableTextBox(null, new Tuple<int, int>(i, GridIncidenceTable.ColumnDefinitions.Count - 1), textBoxValue, 2);
                     GridIncidenceTable.Children.Add(textBox);
@@ -187,7 +193,7 @@ namespace CDM_Lab_3._1
                                 else if (!isLoop && k - 1 == node.Id)
                                     textBoxValue = 1;
                                 else if (!isLoop && k - 1 == node.Children[i].Item1)
-                                    textBoxValue = (node.Edges[i] ? -1 : 1);
+                                    textBoxValue = (node.Edges[i].Item2 == EdgeType.Directed ? -1 : 1);
                                 else
                                     textBoxValue = 0;
                             }
@@ -198,7 +204,7 @@ namespace CDM_Lab_3._1
                                     textBoxValue = 2;
                                     isLoop = true;
                                 }
-                                else if (!isLoop && k - 1 == node.Children[i].Item1 && node.Edges[i])
+                                else if (!isLoop && k - 1 == node.Children[i].Item1 && node.Edges[i].Item2 == EdgeType.Directed)
                                     textBoxValue = -1;
                                 else if (!isLoop && k - 1 == node.Id || k - 1 == node.Children[i].Item1)
                                     textBoxValue = 1;
@@ -277,7 +283,7 @@ namespace CDM_Lab_3._1
             GraphWindow graphWindow = ((GraphWindow)sender);
             Graph graph = graphWindow.Graph;
             NodeCount = graph.Count;
-            UpdateIncidenceTable(graphWindow.IncedenceAction, graphChangedArgs.NodeIndexFrom, graphChangedArgs.NodeIndexTo);
+            UpdateIncidenceTable(graphChangedArgs.AccessType, graphChangedArgs.NodeIndexFrom, graphChangedArgs.NodeIndexTo);
             UpdateAdjacencyTable();
         }
 
@@ -288,6 +294,7 @@ namespace CDM_Lab_3._1
             short[,] AdjacencyTableCopy = (short[,])MatrixAdjacencyTable.Clone();
             bool isNoZeroRemained;
             short whileCount = 0;
+            int edgeCount = 0;
             do
             {
                 isNoZeroRemained = false;
@@ -297,29 +304,30 @@ namespace CDM_Lab_3._1
                     {
                         if (AdjacencyTableCopy[x, y] > 0 && (GraphTypeCurrent != GraphType.Undirected || x >= y))
                         {
-                            bool isSingleOriented = false;
+                            EdgeType edgeType = EdgeType.Directed;
                             switch (GraphTypeCurrent)
                             {
-                                case GraphType.Directed: isSingleOriented = true; break;
+                                case GraphType.Undirected: edgeType = EdgeType.Undirected; break;
                                 case GraphType.Mixed:
                                     {
                                         if (x == y)
                                         {
                                             AdjacencyTableCopy[x, y]--;
+                                            edgeType = EdgeType.Loop;
                                             break;
                                         }
-                                        isSingleOriented = (AdjacencyTableCopy[x, y] - AdjacencyTableCopy[y, x]) > 0;
-                                        if (!isSingleOriented)
+                                        if ((AdjacencyTableCopy[x, y] - AdjacencyTableCopy[y, x]) < 1)
                                         {
                                             AdjacencyTableCopy[x, y]--;
                                             AdjacencyTableCopy[y, x]--;
+                                            edgeType = EdgeType.Undirected;
                                         }
                                         else if (AdjacencyTableCopy[x, y] > AdjacencyTableCopy[y, x]) AdjacencyTableCopy[x, y]--;
                                         else AdjacencyTableCopy[y, x]--;
                                     }
                                     break;
                             }
-                            graph.Nodes[x].AddChild(graph.Nodes[y], isSingleOriented);
+                            graph.Nodes[x].AddChild(graph.Nodes[y], new Tuple<int, EdgeType>(edgeCount++, edgeType));
                         }
                         if (GraphTypeCurrent != GraphType.Mixed)
                             AdjacencyTableCopy[x, y]--;
@@ -370,7 +378,7 @@ namespace CDM_Lab_3._1
                                 if (graph.Nodes[x - 1].Children[i].Item1 == graph.Nodes[y - 1].Id)
                                 {
                                     value++;
-                                    if (!graph.Nodes[x - 1].Edges[i] && graph.Nodes[x - 1].Id != graph.Nodes[y - 1].Id)
+                                    if (graph.Nodes[x - 1].Edges[i].Item2 == EdgeType.Undirected && graph.Nodes[x - 1].Id != graph.Nodes[y - 1].Id)
                                     {
                                         doSymetric.Add(new Tuple<int, int>(y - 1, x - 1));
                                         doSymetricCount.Add(x);
