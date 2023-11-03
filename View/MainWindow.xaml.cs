@@ -293,7 +293,6 @@ namespace CDM_Lab_3._1
 
             short[,] AdjacencyTableCopy = (short[,])MatrixAdjacencyTable.Clone();
             bool isNoZeroRemained;
-            short whileCount = 0;
             int edgeCount = 0;
             do
             {
@@ -335,7 +334,6 @@ namespace CDM_Lab_3._1
                             isNoZeroRemained = true;
                     }
                 }
-                whileCount++;
             } while (isNoZeroRemained);
             return graph;
         }
