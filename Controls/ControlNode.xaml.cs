@@ -1,4 +1,5 @@
 ﻿using CDM_Lab_3._1.Models.Graph;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -20,6 +21,7 @@ namespace CDM_Lab_3._1.Controls
         private Point CurrentMousePosition;
         public int index;
         public Node node;
+        public List<ControlEdge> ControlEdges;
         public ControlNode(Node node, Point point)
         {
             InitializeComponent();
@@ -28,6 +30,7 @@ namespace CDM_Lab_3._1.Controls
             this.node = node;
             this.index = node.Id;
             Text.Text = $"x{index}";
+            ControlEdges = new();
             RenderTransform = new TranslateTransform();
             ((TranslateTransform)RenderTransform).X = point.X;
             ((TranslateTransform)RenderTransform).Y = point.Y;

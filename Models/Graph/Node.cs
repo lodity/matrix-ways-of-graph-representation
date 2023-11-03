@@ -29,9 +29,18 @@ namespace CDM_Lab_3._1.Models.Graph
             Children.Add(new Tuple<int, Node>(node.Id, node));
             Edges.Add(edge);
         }
-        public void RemoveChild(int childIndex)
+        public void RemoveChild(int childIndex, Tuple<int, EdgeType> edge)
         {
+            Tuple<int, Node>? childToRemove = null;
+            foreach (var child in Children)
+            {
+                if (child.Item1 == childIndex)
+                    childToRemove = child;
+            }
+            if (childToRemove != null)
+                Children.Remove(childToRemove);
 
+            Edges.Remove(edge);
         }
     }
 }

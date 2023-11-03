@@ -16,8 +16,9 @@ namespace CDM_Lab_3._1.Controls
         public ControlNode NodeStart;
         public ControlNode NodeEnd;
         GraphType GraphTypeCurrent;
-        private EdgeType edgeType;
+        public EdgeType edgeType;
         double EdgeOffset;
+        public int Id;
         readonly int EdgeOffsetMax;
         readonly double HalfOfWindowWidth;
         readonly double HalfOfWindowHeight;
@@ -36,6 +37,7 @@ namespace CDM_Lab_3._1.Controls
             HalfOfWindowWidth = window.X / 2;
             HalfOfWindowHeight = window.Y / 2;
             EdgeOffset = edgeOffset;
+            Id = number;
             EdgeName.Text = $"{number}";
             nodeStart.Moved += UpdateHandler;
             nodeEnd.Moved += UpdateHandler;

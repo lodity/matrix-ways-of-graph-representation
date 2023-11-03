@@ -27,7 +27,9 @@ namespace CDM_Lab_3._1
         {
             AdjacencyTable,
             GraphWindow_EdgeAdded,
-            GraphWindow_NodeAdded
+            GraphWindow_EdgeRemoved,
+            GraphWindow_NodeAdded,
+            Graph
         }
 
         GraphWindow? graphWindow = null;
@@ -97,7 +99,7 @@ namespace CDM_Lab_3._1
 
             UpdateIncidenceTable(IncidenceAccessType.AdjacencyTable);
         }
-        private void UpdateIncidenceTable(IncidenceAccessType accessType, [Optional] int nodeIndexFrom, [Optional] int nodeIndexTo)
+        private void UpdateIncidenceTable(IncidenceAccessType accessType, [Optional] GraphChangedArgs args)
         {
             if (accessType == IncidenceAccessType.GraphWindow_NodeAdded)
             {
@@ -118,12 +120,13 @@ namespace CDM_Lab_3._1
             {
                 if (GridIncidenceTable.ColumnDefinitions.Count < 2)
                 {
+                    ClearGrid(GridIncidenceTable);
                     GridIncidenceTable.RowDefinitions.Add(new RowDefinition { Height = new GridLength(24, GridUnitType.Pixel) });
                     GridIncidenceTable.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32, GridUnitType.Pixel) });
                     for (int i = 1; i < NodeCount + 1; i++)
                     {
                         GridIncidenceTable.RowDefinitions.Add(new RowDefinition { Height = new GridLength(24, GridUnitType.Pixel) });
-                        Label labelX = UiUtils.CreateTableLabel($"x{i}", new Tuple<int, int>(i, 0));
+                        Label labelX = UiUtils.CreateTableLabel($"x{i - 1}", new Tuple<int, int>(i, 0));
                         GridIncidenceTable.Children.Add(labelX);
                     }
                 }
@@ -134,27 +137,36 @@ namespace CDM_Lab_3._1
                 for (int i = 1; i < NodeCount + 1; i++)
                 {
                     int textBoxValue = 0;
-                    if (nodeIndexFrom == nodeIndexTo && nodeIndexTo == i - 1)
+                    if (args.NodeIndexFrom == args.NodeIndexTo && args.NodeIndexTo == i - 1)
                     {
                         isLoop = true;
                         textBoxValue = 2;
                     }
-                    else if (!isLoop && nodeIndexFrom == i - 1)
+                    else if (!isLoop && args.NodeIndexFrom == i - 1)
                         textBoxValue = 1;
-                    else if (!isLoop && nodeIndexTo == i - 1)
+                    else if (!isLoop && args.NodeIndexTo == i - 1)
                         textBoxValue = GraphTypeCurrent == GraphType.Undirected ? 1 : -1;
                     TextBox textBox = UiUtils.CreateTableTextBox(null, new Tuple<int, int>(i, GridIncidenceTable.ColumnDefinitions.Count - 1), textBoxValue, 2);
                     GridIncidenceTable.Children.Add(textBox);
                 }
                 return;
             }
+            if (accessType == IncidenceAccessType.GraphWindow_EdgeRemoved)
+            {
+                foreach (ContentControl child in GridIncidenceTable.Children)
+                {
+                    if (child.Name != null && child.Name == $"a{args.EdgeId}") { }
+                    // TODO remove incedence column
+                }
+            }
             ClearGrid(GridIncidenceTable);
 
             Graph graph;
             if (accessType == IncidenceAccessType.AdjacencyTable || graphWindow == null)
                 graph = CreateGraph_AdjacencyBased();
-            else
+            else if (accessType == IncidenceAccessType.Graph)
                 graph = graphWindow.Graph;
+            else graph = CreateGraph_AdjacencyBased();
             NodeCount = graph.Count;
 
             for (short i = 0; i < NodeCount + 1; i++)
@@ -283,7 +295,7 @@ namespace CDM_Lab_3._1
             GraphWindow graphWindow = ((GraphWindow)sender);
             Graph graph = graphWindow.Graph;
             NodeCount = graph.Count;
-            UpdateIncidenceTable(graphChangedArgs.AccessType, graphChangedArgs.NodeIndexFrom, graphChangedArgs.NodeIndexTo);
+            UpdateIncidenceTable(graphChangedArgs.AccessType, graphChangedArgs);
             UpdateAdjacencyTable();
         }
 
