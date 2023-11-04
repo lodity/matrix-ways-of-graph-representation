@@ -1,6 +1,7 @@
 ﻿using CDM_Lab_3._1.Controls;
 using CDM_Lab_3._1.Models;
 using CDM_Lab_3._1.Models.Graph;
+using CDM_Lab_3._1.Services;
 using System;
 using System.Collections.Generic;
 using System.Windows;
@@ -16,6 +17,7 @@ namespace CDM_Lab_3._1.View
     /// </summary>
     public partial class GraphWindow : Window
     {
+        MainWindow MainWindow;
         public event EventHandler<GraphChangedArgs>? GraphChanged;
         public IncidenceAccessType IncedenceAction;
         ControlNode? controlNodeSelected_Add;
@@ -30,10 +32,11 @@ namespace CDM_Lab_3._1.View
         bool[,] nodeSectors;
         public short[,] MatrixAdjacencyTable;
         List<ControlNode> controlNodes;
-        public GraphWindow(Graph graph, GraphType graphTypeCurrent, ref short[,] matrixAdjacencyTable)
+        public GraphWindow(MainWindow mainWindow, Graph graph, GraphType graphTypeCurrent, ref short[,] matrixAdjacencyTable)
         {
             InitializeComponent();
 
+            MainWindow = mainWindow;
             edgeAvailableIds = new List<int>();
             _graph = graph;
             GraphTypeCurrent = graphTypeCurrent;
@@ -54,6 +57,7 @@ namespace CDM_Lab_3._1.View
                 _graph = value;
                 Field.Children.Clear();
                 controlNodes = new List<ControlNode>();
+                edgeAvailableIds = new List<int>();
                 nodeSectors = new bool[horizontalSectorsMax, verticalSectorsMax];
 
                 BuildNodes();
@@ -109,7 +113,7 @@ namespace CDM_Lab_3._1.View
                             }
                 ControlNode controlNode = new(_graph.Nodes[i], new Point((horizontalPos + 1) * 40 - Width / 2, (verticalPos + 1) * 40 - Height / 2));
                 controlNode.SelectToAddEdge += ControlNode_SelectedToAddEdge;
-                controlNode.SelectToRemoveEdge += ControlNode_SelectedToRemoveEdge;
+                //controlNode.SelectToRemoveEdge += ControlNode_SelectedToRemoveEdge;
 
                 controlNodes.Add(controlNode);
 
@@ -162,149 +166,119 @@ namespace CDM_Lab_3._1.View
             }
             else
             {
+                GraphActions.GraphAddEdge(ref _graph, ref MatrixAdjacencyTable, controlNodeSelected_Add.index, nodeTo.index, edgeCount, GraphTypeCurrent);
                 bool isLoop = controlNodeSelected_Add == nodeTo;
-                EdgeType edgeType = GraphTypeCurrent == GraphType.Undirected ? EdgeType.Undirected : EdgeType.Directed;
-                _graph.Nodes[controlNodeSelected_Add.index].AddChild(_graph.Nodes[nodeTo.index], new Tuple<int, EdgeType>(edgeCount, isLoop ? EdgeType.Loop : edgeType));
+                //EdgeType edgeType = GraphTypeCurrent == GraphType.Undirected ? EdgeType.Undirected : EdgeType.Directed;
+                //_graph.Nodes[controlNodeSelected_Add.index].AddChild(_graph.Nodes[nodeTo.index], new Tuple<int, EdgeType>(edgeCount, isLoop ? EdgeType.Loop : edgeType));
                 int edgeOffset = _graph.Nodes[controlNodeSelected_Add.index].Edges.Count;
                 int edgeOffsetMax = MatrixAdjacencyTable[nodeTo.index, controlNodeSelected_Add.index];
 
-                int edgeId;
-                if (edgeAvailableIds.Count > 0)
-                {
-                    edgeId = edgeAvailableIds[0];
-                    edgeAvailableIds.RemoveAt(0);
-                    edgeCount++;
-                }
-                else
-                {
-                    edgeId = edgeCount++;
-                }
-
                 ControlEdge controlEdge = new(controlNodeSelected_Add, nodeTo, new Point(Field.Width, Field.Height),
-                         edgeId, edgeOffset, edgeOffsetMax == 0 ? ++edgeOffsetMax : edgeOffsetMax, GraphTypeCurrent,
+                         edgeCount++, edgeOffset, edgeOffsetMax == 0 ? ++edgeOffsetMax : edgeOffsetMax, GraphTypeCurrent,
                         isLoop ? EdgeType.Loop : _graph.Nodes[controlNodeSelected_Add.index].Edges[^1].Item2);
                 controlNodeSelected_Add.ControlEdges.Add(controlEdge);
                 nodeTo.ControlEdges.Add(controlEdge);
                 Field.Children.Add(controlEdge);
-                IncedenceAction = IncidenceAccessType.GraphWindow_EdgeAdded;
-                GraphChangedArgs graphChangedArgs = new()
-                {
-                    AccessType = IncidenceAccessType.GraphWindow_EdgeAdded,
-                    NodeIndexFrom = controlNodeSelected_Add.index,
-                    NodeIndexTo = nodeTo.index
-                };
-                GraphChanged?.Invoke(this, graphChangedArgs);
+                MainWindow.IncedenceAddEdge(controlNodeSelected_Add.index, nodeTo.index);
+                //GraphChangedArgs graphChangedArgs = new()
+                //{
+                //    AccessType = IncidenceAccessType.GraphWindow_EdgeAdded,
+                //    NodeIndexFrom = controlNodeSelected_Add.index,
+                //    NodeIndexTo = nodeTo.index
+                //};
+                //GraphChanged?.Invoke(this, graphChangedArgs);
                 controlNodeSelected_Add.SelectClear();
                 controlNodeSelected_Add = null;
             }
         }
-        private void ControlNode_SelectedToRemoveEdge(object sender, RoutedEventArgs e)
-        {
-            ControlNode nodeTo = (ControlNode)((Border)sender).Parent;
-            if (controlNodeSelected_Remove == null)
-            {
-                controlNodeSelected_Remove = nodeTo;
-                controlNodeSelected_Remove.SelectRemoveEdge();
-            }
-            else
-            {
-                ControlEdge? controlEdge = null;
-                if (GraphTypeCurrent == GraphType.Directed)
-                {
-                    foreach (var controlEdgeFrom in controlNodeSelected_Remove.ControlEdges)
-                    {
-                        if (controlEdgeFrom.NodeStart == controlNodeSelected_Remove && controlEdgeFrom.NodeEnd == nodeTo)
-                        {
-                            controlEdge = controlEdgeFrom;
-                            break;
-                        }
-                    }
-                }
-                else if (GraphTypeCurrent == GraphType.Mixed)
-                {
-                    foreach (var controlEdgeFrom in controlNodeSelected_Remove.ControlEdges)
-                    {
-                        if (controlEdgeFrom.NodeStart == controlNodeSelected_Remove && controlEdgeFrom.NodeEnd == nodeTo)
-                        {
-                            controlEdge = controlEdgeFrom;
-                            break;
-                        }
-                    }
-                    if (controlEdge == null)
-                    {
-                        foreach (var controlEdgeFrom in controlNodeSelected_Remove.ControlEdges)
-                        {
-                            foreach (var controlEdgeTo in nodeTo.ControlEdges)
-                            {
-                                if (GraphTypeCurrent == GraphType.Undirected && controlEdgeFrom == controlEdgeTo)
-                                {
-                                    controlEdge = controlEdgeFrom;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                    foreach (var controlEdgeFrom in controlNodeSelected_Remove.ControlEdges)
-                    {
-                        foreach (var controlEdgeTo in nodeTo.ControlEdges)
-                        {
-                            if (controlEdgeFrom == controlEdgeTo)
-                            {
-                                controlEdge = controlEdgeFrom;
-                                break;
-                            }
-                        }
-                    }
-                if (controlEdge != null)
-                {
-                    controlEdge.NodeStart.node.RemoveChild(controlEdge.NodeEnd.node.Id, new Tuple<int, EdgeType>(controlEdge.Id, controlEdge.edgeType));
-                    nodeTo.ControlEdges.Remove(controlEdge);
-                    controlNodeSelected_Remove.ControlEdges.Remove(controlEdge);
-                    Field.Children.Remove(controlEdge);
-                    edgeAvailableIds.Add(controlEdge.Id);
-                    edgeCount--;
-                    GraphChangedArgs graphChangedArgs = new()
-                    {
-                        AccessType = IncidenceAccessType.GraphWindow_EdgeRemoved,
-                        EdgeId = controlEdge.Id
-                    };
-                    GraphChanged?.Invoke(this, graphChangedArgs);
-                }
-                controlNodeSelected_Remove.SelectClear();
-                controlNodeSelected_Remove = null;
-
-            }
-        }
+        //private void ControlNode_SelectedToRemoveEdge(object sender, RoutedEventArgs e)
+        //{
+        //    ControlNode nodeTo = (ControlNode)((Border)sender).Parent;
+        //    if (controlNodeSelected_Remove == null)
+        //    {
+        //        controlNodeSelected_Remove = nodeTo;
+        //        controlNodeSelected_Remove.SelectRemoveEdge();
+        //        return;
+        //    }
+        //    ControlEdge? controlEdge = null;
+        //    if (GraphTypeCurrent == GraphType.Directed)
+        //    {
+        //        foreach (var controlEdgeFrom in controlNodeSelected_Remove.ControlEdges)
+        //        {
+        //            if (controlEdgeFrom.NodeStart == controlNodeSelected_Remove && controlEdgeFrom.NodeEnd == nodeTo)
+        //            {
+        //                controlEdge = controlEdgeFrom;
+        //                break;
+        //            }
+        //        }
+        //    }
+        //    else if (GraphTypeCurrent == GraphType.Mixed)
+        //    {
+        //        foreach (var controlEdgeFrom in controlNodeSelected_Remove.ControlEdges)
+        //        {
+        //            if (controlEdgeFrom.NodeStart == controlNodeSelected_Remove && controlEdgeFrom.NodeEnd == nodeTo)
+        //            {
+        //                controlEdge = controlEdgeFrom;
+        //                break;
+        //            }
+        //        }
+        //        if (controlEdge == null)
+        //        {
+        //            foreach (var controlEdgeFrom in controlNodeSelected_Remove.ControlEdges)
+        //            {
+        //                foreach (var controlEdgeTo in nodeTo.ControlEdges)
+        //                {
+        //                    if (GraphTypeCurrent == GraphType.Undirected && controlEdgeFrom == controlEdgeTo)
+        //                    {
+        //                        controlEdge = controlEdgeFrom;
+        //                        break;
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //    else
+        //        foreach (var controlEdgeFrom in controlNodeSelected_Remove.ControlEdges)
+        //        {
+        //            foreach (var controlEdgeTo in nodeTo.ControlEdges)
+        //            {
+        //                if (controlEdgeFrom == controlEdgeTo)
+        //                {
+        //                    controlEdge = controlEdgeFrom;
+        //                    break;
+        //                }
+        //            }
+        //        }
+        //    if (controlEdge != null)
+        //    {
+        //        controlEdge.NodeStart.node.RemoveChild(controlEdge.NodeEnd.node.Id, new Tuple<int, EdgeType>(controlEdge.Id, controlEdge.edgeType));
+        //        nodeTo.ControlEdges.Remove(controlEdge);
+        //        controlNodeSelected_Remove.ControlEdges.Remove(controlEdge);
+        //        Field.Children.Remove(controlEdge);
+        //        edgeAvailableIds.Add(controlEdge.Id);
+        //        edgeCount--;
+        //        GraphChangedArgs graphChangedArgs = new()
+        //        {
+        //            AccessType = IncidenceAccessType.GraphWindow_EdgeRemoved,
+        //            EdgeId = controlEdge.Id,
+        //            AvailableEdgeId = edgeAvailableIds,
+        //        };
+        //        GraphChanged?.Invoke(this, graphChangedArgs);
+        //    }
+        //    controlNodeSelected_Remove.SelectClear();
+        //    controlNodeSelected_Remove = null;
+        //}
         private void Field_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             Point spawnPoint = e.GetPosition(this);
             if (spawnPoint != new Point(0, 0) && e.ClickCount == 2 && e.ChangedButton == MouseButton.Left && sender != Field)
             {
-                _graph.AddNode();
-                short[,] MatrixAdjacencyTableCopy = new short[_graph.Count, _graph.Count];
-                for (int i = 0; i < _graph.Count; i++)
-                {
-                    for (int j = 0; j < _graph.Count; j++)
-                    {
-                        if (Math.Sqrt(MatrixAdjacencyTable.Length) > i && Math.Sqrt(MatrixAdjacencyTable.Length) > j)
-                            MatrixAdjacencyTableCopy[i, j] = MatrixAdjacencyTable[i, j];
-                        else MatrixAdjacencyTableCopy[i, j] = 0;
-                    }
-                }
-                MatrixAdjacencyTable = MatrixAdjacencyTableCopy;
+                GraphActions.GraphAddNode(ref _graph, ref MatrixAdjacencyTable);
                 ControlNode controlNode = new(_graph.Nodes[^1], new Point(spawnPoint.X - Width / 2, spawnPoint.Y - Height / 2));
                 controlNode.SelectToAddEdge += ControlNode_SelectedToAddEdge;
-                controlNode.SelectToRemoveEdge += ControlNode_SelectedToRemoveEdge;
                 controlNodes.Add(controlNode);
                 Field.Children.Add(controlNode);
-                IncedenceAction = IncidenceAccessType.GraphWindow_NodeAdded;
-                GraphChangedArgs graphChangedArgs = new()
-                {
-                    AccessType = IncidenceAccessType.GraphWindow_NodeAdded
-                };
-                GraphChanged?.Invoke(this, graphChangedArgs);
+                MainWindow.IncedenceAddNode(MatrixAdjacencyTable);
             }
         }
 

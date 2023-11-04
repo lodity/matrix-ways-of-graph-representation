@@ -1,5 +1,6 @@
 ﻿using CDM_Lab_3._1.Models;
 using CDM_Lab_3._1.Models.Graph;
+using CDM_Lab_3._1.Services;
 using CDM_Lab_3._1.Utils;
 using CDM_Lab_3._1.View;
 using System;
@@ -8,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using static CDM_Lab_3._1.Models.Graph.Node;
 using static CDM_Lab_3._1.View.GraphWindow;
 
@@ -38,6 +40,8 @@ namespace CDM_Lab_3._1
         private short[,] MatrixAdjacencyTable;
         private TextBox[,] AdjacencyTableTextBox;
         private bool IsTextBoxTextChangedFromUI = true;
+        private Button ButtonAddNode;
+        private Button ButtonAddEdge;
         public MainWindow()
         {
             InitializeComponent();
@@ -45,10 +49,37 @@ namespace CDM_Lab_3._1
 
             MatrixAdjacencyTable = new short[0, 0];
             AdjacencyTableTextBox = new TextBox[0, 0];
-            ButtonApplyNodesCount_Click();
             CreateAdjacencyTable(NodeCount);
             if (DEFAULT_ADJACENCY_TABLE_VALUE != 0)
                 UpdateIncidenceTable(IncidenceAccessType.AdjacencyTable);
+
+            ButtonAddNode = new()
+            {
+                Content = "+",
+                Width = 32,
+                Height = 24,
+                Background = new SolidColorBrush(Color.FromRgb(4, 194, 55)),
+                FontSize = 24,
+                Padding = new Thickness(0, -8, 0, 0),
+                Visibility = Visibility.Hidden
+            };
+            ButtonAddNode.Click += ButtonAddNode_Click;
+            ButtonAddEdge = new()
+            {
+                Content = "+",
+                Width = 32,
+                Height = 24,
+                Background = new SolidColorBrush(Color.FromRgb(4, 194, 55)),
+                FontSize = 24,
+                Padding = new Thickness(0, -8, 0, 0),
+                Visibility = Visibility.Hidden
+            };
+            //ButtonAddEdge.Click += ButtonAddEdge_Click;
+            Grid.SetColumn(ButtonAddNode, 0);
+            Grid.SetRow(ButtonAddEdge, 0);
+            GridIncidenceTable.Children.Add(ButtonAddNode);
+            GridIncidenceTable.Children.Add(ButtonAddEdge);
+            ButtonApplyNodesCount_Click();
         }
         private static void ClearGrid(Grid grid)
         {
@@ -101,95 +132,29 @@ namespace CDM_Lab_3._1
         }
         private void UpdateIncidenceTable(IncidenceAccessType accessType, [Optional] GraphChangedArgs args)
         {
-            if (accessType == IncidenceAccessType.GraphWindow_NodeAdded)
-            {
-                if (GridIncidenceTable.ColumnDefinitions.Count < 2)
-                    return;
-                GridIncidenceTable.RowDefinitions.Add(new RowDefinition { Height = new GridLength(24, GridUnitType.Pixel) });
-                Label label = UiUtils.CreateTableLabel($"x{NodeCount - 1}", new Tuple<int, int>(NodeCount, 0));
-                GridIncidenceTable.Children.Add(label);
-
-                for (int i = 1; i < GridIncidenceTable.ColumnDefinitions.Count; i++)
-                {
-                    TextBox textBox = UiUtils.CreateTableTextBox(null, new Tuple<int, int>(NodeCount, i), 0, 2);
-                    GridIncidenceTable.Children.Add(textBox);
-                }
-                return;
-            }
-            if (accessType == IncidenceAccessType.GraphWindow_EdgeAdded)
-            {
-                if (GridIncidenceTable.ColumnDefinitions.Count < 2)
-                {
-                    ClearGrid(GridIncidenceTable);
-                    GridIncidenceTable.RowDefinitions.Add(new RowDefinition { Height = new GridLength(24, GridUnitType.Pixel) });
-                    GridIncidenceTable.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32, GridUnitType.Pixel) });
-                    for (int i = 1; i < NodeCount + 1; i++)
-                    {
-                        GridIncidenceTable.RowDefinitions.Add(new RowDefinition { Height = new GridLength(24, GridUnitType.Pixel) });
-                        Label labelX = UiUtils.CreateTableLabel($"x{i - 1}", new Tuple<int, int>(i, 0));
-                        GridIncidenceTable.Children.Add(labelX);
-                    }
-                }
-                GridIncidenceTable.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32, GridUnitType.Pixel) });
-                Label label = UiUtils.CreateTableLabel($"a{GridIncidenceTable.ColumnDefinitions.Count - 2}", new Tuple<int, int>(0, GridIncidenceTable.ColumnDefinitions.Count - 1));
-                GridIncidenceTable.Children.Add(label);
-                bool isLoop = false;
-                for (int i = 1; i < NodeCount + 1; i++)
-                {
-                    int textBoxValue = 0;
-                    if (args.NodeIndexFrom == args.NodeIndexTo && args.NodeIndexTo == i - 1)
-                    {
-                        isLoop = true;
-                        textBoxValue = 2;
-                    }
-                    else if (!isLoop && args.NodeIndexFrom == i - 1)
-                        textBoxValue = 1;
-                    else if (!isLoop && args.NodeIndexTo == i - 1)
-                        textBoxValue = GraphTypeCurrent == GraphType.Undirected ? 1 : -1;
-                    TextBox textBox = UiUtils.CreateTableTextBox(null, new Tuple<int, int>(i, GridIncidenceTable.ColumnDefinitions.Count - 1), textBoxValue, 2);
-                    GridIncidenceTable.Children.Add(textBox);
-                }
-                return;
-            }
-            if (accessType == IncidenceAccessType.GraphWindow_EdgeRemoved)
-            {
-                foreach (ContentControl child in GridIncidenceTable.Children)
-                {
-                    if (child.Name != null && child.Name == $"a{args.EdgeId}") { }
-                    // TODO remove incedence column
-                }
-            }
             ClearGrid(GridIncidenceTable);
 
             Graph graph;
             if (accessType == IncidenceAccessType.AdjacencyTable || graphWindow == null)
-                graph = CreateGraph_AdjacencyBased();
-            else if (accessType == IncidenceAccessType.Graph)
+                graph = GraphActions.CreateGraph_AdjacencyBased(MatrixAdjacencyTable, GraphTypeCurrent);
+            else if (accessType == IncidenceAccessType.Graph || accessType == IncidenceAccessType.GraphWindow_EdgeRemoved)
                 graph = graphWindow.Graph;
-            else graph = CreateGraph_AdjacencyBased();
+            else graph = GraphActions.CreateGraph_AdjacencyBased(MatrixAdjacencyTable, GraphTypeCurrent);
             NodeCount = graph.Count;
-
-            for (short i = 0; i < NodeCount + 1; i++)
-                GridIncidenceTable.RowDefinitions.Add(new RowDefinition { Height = new GridLength(24, GridUnitType.Pixel) });
-            GridIncidenceTable.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32, GridUnitType.Pixel) });
-
-            for (int i = 1; i < NodeCount + 1; i++)
-            {
-                Label label = UiUtils.CreateTableLabel($"x{i - 1}", new Tuple<int, int>(i, 0));
-                GridIncidenceTable.Children.Add(label);
-            }
+            IncedenceCreateBase();
+            int edgeCount = 0;
             foreach (Node node in graph)
             {
                 for (int i = 0; i < node.Children.Count; i++)
                 {
                     bool isLoop = false;
                     GridIncidenceTable.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32, GridUnitType.Pixel) });
-                    int indexLastColumn = GridIncidenceTable.ColumnDefinitions.Count - 1;
+                    int indexLastColumn = GridIncidenceTable.ColumnDefinitions.Count - 2;
                     for (short k = 0; k < NodeCount + 1; k++)
                     {
                         if (k == 0)
                         {
-                            Label label = UiUtils.CreateTableLabel($"a{indexLastColumn - 1}", new Tuple<int, int>(k, indexLastColumn));
+                            Label label = UiUtils.CreateTableLabel($"a{edgeCount++}", new Tuple<int, int>(k, indexLastColumn));
                             GridIncidenceTable.Children.Add(label);
                         }
                         else
@@ -229,15 +194,101 @@ namespace CDM_Lab_3._1
                     }
                 }
             }
+            Grid.SetRow(ButtonAddNode, NodeCount + 2);
+            Grid.SetColumn(ButtonAddEdge, edgeCount + 2);
+        }
+        private void ButtonAddNode_Click(object sender, RoutedEventArgs e) => IncedenceAddNode();
+        // TODO 
+        //private void ButtonAddEdge_Click(object sender, RoutedEventArgs e) => IncedenceAddEdge();
+        private void IncedenceCreateBase()
+        {
+            UiUtils.AddRowDefenitions(GridIncidenceTable, NodeCount + 2);
+            UiUtils.AddColumnDefenitions(GridIncidenceTable, 2);
+
+            for (int i = 1; i < NodeCount + 1; i++)
+            {
+                Label label = UiUtils.CreateTableLabel($"x{i - 1}", new Tuple<int, int>(i, 0));
+                GridIncidenceTable.Children.Add(label);
+            }
+            ButtonAddNode.Visibility = Visibility.Visible;
+            ButtonAddEdge.Visibility = Visibility.Visible;
+            if (GridIncidenceTable.ColumnDefinitions.Count < 3)
+            {
+                Grid.SetRow(ButtonAddNode, NodeCount + 2);
+                Grid.SetColumn(ButtonAddEdge, 1);
+                GridIncidenceTable.Children.Add(ButtonAddNode);
+                GridIncidenceTable.Children.Add(ButtonAddEdge);
+            }
+        }
+        public void IncedenceAddNode([Optional] short[,] matrixAdjacencyTable)
+        {
+            NodeCount++;
+            if (matrixAdjacencyTable == null)
+
+                GraphActions.GraphAddNode(ref MatrixAdjacencyTable);
+            else
+                MatrixAdjacencyTable = matrixAdjacencyTable;
+            UpdateAdjacencyTable(true);
+
+            if (GridIncidenceTable.ColumnDefinitions.Count < 2)
+                return;
+            UiUtils.AddRowDefenitions(GridIncidenceTable, 1);
+            Label label = UiUtils.CreateTableLabel($"x{NodeCount - 1}", new Tuple<int, int>(NodeCount, 0));
+            GridIncidenceTable.Children.Add(label);
+
+            for (int i = 1; i < GridIncidenceTable.ColumnDefinitions.Count - 1; i++)
+            {
+                TextBox textBox = UiUtils.CreateTableTextBox(null, new Tuple<int, int>(NodeCount, i), 0, 2);
+                GridIncidenceTable.Children.Add(textBox);
+            }
+            Grid.SetRow(ButtonAddNode, NodeCount + 2);
+            ButtonAddNode.Visibility = Visibility.Visible;
+            ButtonAddEdge.Visibility = Visibility.Visible;
+        }
+        public void IncedenceAddEdge(int NodeIndexFrom, int NodeIndexTo)
+        {
+            //GraphActions.GraphAddNode(ref MatrixAdjacencyTable);
+            UpdateAdjacencyTable();
+            if (GridIncidenceTable.ColumnDefinitions.Count < 2)
+            {
+                //ClearGrid(GridIncidenceTable);
+                UiUtils.AddRowDefenitions(GridIncidenceTable, 1);
+                UiUtils.AddColumnDefenitions(GridIncidenceTable, 1);
+                for (int i = 1; i < NodeCount + 1; i++)
+                {
+                    UiUtils.AddRowDefenitions(GridIncidenceTable, 1);
+                    Label labelX = UiUtils.CreateTableLabel($"x{i - 1}", new Tuple<int, int>(i, 0));
+                    GridIncidenceTable.Children.Add(labelX);
+                }
+                UiUtils.AddColumnDefenitions(GridIncidenceTable, 1);
+            }
+            UiUtils.AddColumnDefenitions(GridIncidenceTable, 1);
+            Label label = UiUtils.CreateTableLabel($"a{GridIncidenceTable.ColumnDefinitions.Count - 3}", new Tuple<int, int>(0, GridIncidenceTable.ColumnDefinitions.Count - 2));
+            GridIncidenceTable.Children.Add(label);
+            bool isLoop = false;
+            for (int i = 1; i < NodeCount + 1; i++)
+            {
+                int textBoxValue = 0;
+                if (NodeIndexFrom == NodeIndexTo && NodeIndexTo == i - 1)
+                {
+                    isLoop = true;
+                    textBoxValue = 2;
+                }
+                else if (!isLoop && NodeIndexFrom == i - 1)
+                    textBoxValue = 1;
+                else if (!isLoop && NodeIndexTo == i - 1)
+                    textBoxValue = GraphTypeCurrent == GraphType.Undirected ? 1 : -1;
+                TextBox textBox = UiUtils.CreateTableTextBox(null, new Tuple<int, int>(i, GridIncidenceTable.ColumnDefinitions.Count - 2), textBoxValue, 2);
+                GridIncidenceTable.Children.Add(textBox);
+            }
+            Grid.SetColumn(ButtonAddEdge, GridIncidenceTable.ColumnDefinitions.Count - 1);
         }
         private void CreateAdjacencyTable(int nodeCount)
         {
             MatrixAdjacencyTable = new short[nodeCount, nodeCount];
             AdjacencyTableTextBox = new TextBox[nodeCount, nodeCount];
-            for (short i = 0; i < nodeCount + 1; i++)
-                GridAdjacencyTable.RowDefinitions.Add(new RowDefinition { Height = new GridLength(24, GridUnitType.Pixel) });
-            for (short i = 0; i < nodeCount + 1; i++)
-                GridAdjacencyTable.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32, GridUnitType.Pixel) });
+            UiUtils.AddRowDefenitions(GridAdjacencyTable, nodeCount + 1);
+            UiUtils.AddColumnDefenitions(GridAdjacencyTable, nodeCount + 1);
             for (short x = 0; x < nodeCount + 1; x++)
             {
                 for (short y = 0; y < nodeCount + 1; y++)
@@ -268,6 +319,7 @@ namespace CDM_Lab_3._1
             ButtonClearTable_Click();
             NodeCount = int.Parse(TextBoxNodesCount.Text);
             CreateAdjacencyTable(NodeCount);
+            IncedenceCreateBase();
         }
         private void ButtonClearTable_Click([Optional] object sender, [Optional] RoutedEventArgs e)
         {
@@ -278,13 +330,13 @@ namespace CDM_Lab_3._1
         {
             if (graphWindow != null && graphWindow.IsVisible)
             {
-                graphWindow.Graph = CreateGraph_AdjacencyBased();
+                graphWindow.Graph = GraphActions.CreateGraph_AdjacencyBased(MatrixAdjacencyTable, GraphTypeCurrent);
                 graphWindow.GraphTypeCurrent = GraphTypeCurrent;
                 graphWindow.MatrixAdjacencyTable = MatrixAdjacencyTable;
             }
             else
             {
-                graphWindow = new(CreateGraph_AdjacencyBased(), GraphTypeCurrent, ref MatrixAdjacencyTable);
+                graphWindow = new(this, GraphActions.CreateGraph_AdjacencyBased(MatrixAdjacencyTable, GraphTypeCurrent), GraphTypeCurrent, ref MatrixAdjacencyTable);
                 graphWindow.Show();
                 graphWindow.GraphChanged += GraphWindow_GraphChanged;
             }
@@ -299,65 +351,15 @@ namespace CDM_Lab_3._1
             UpdateAdjacencyTable();
         }
 
-        private Graph CreateGraph_AdjacencyBased()
-        {
-            Graph graph = new(NodeCount);
-
-            short[,] AdjacencyTableCopy = (short[,])MatrixAdjacencyTable.Clone();
-            bool isNoZeroRemained;
-            int edgeCount = 0;
-            do
-            {
-                isNoZeroRemained = false;
-                for (int x = 0; x < NodeCount; x++)
-                {
-                    for (int y = 0; y < NodeCount; y++)
-                    {
-                        if (AdjacencyTableCopy[x, y] > 0 && (GraphTypeCurrent != GraphType.Undirected || x >= y))
-                        {
-                            EdgeType edgeType = EdgeType.Directed;
-                            switch (GraphTypeCurrent)
-                            {
-                                case GraphType.Undirected: edgeType = EdgeType.Undirected; break;
-                                case GraphType.Mixed:
-                                    {
-                                        if (x == y)
-                                        {
-                                            AdjacencyTableCopy[x, y]--;
-                                            edgeType = EdgeType.Loop;
-                                            break;
-                                        }
-                                        if ((AdjacencyTableCopy[x, y] - AdjacencyTableCopy[y, x]) < 1)
-                                        {
-                                            AdjacencyTableCopy[x, y]--;
-                                            AdjacencyTableCopy[y, x]--;
-                                            edgeType = EdgeType.Undirected;
-                                        }
-                                        else if (AdjacencyTableCopy[x, y] > AdjacencyTableCopy[y, x]) AdjacencyTableCopy[x, y]--;
-                                        else AdjacencyTableCopy[y, x]--;
-                                    }
-                                    break;
-                            }
-                            graph.Nodes[x].AddChild(graph.Nodes[y], new Tuple<int, EdgeType>(edgeCount++, edgeType));
-                        }
-                        if (GraphTypeCurrent != GraphType.Mixed)
-                            AdjacencyTableCopy[x, y]--;
-                        if (AdjacencyTableCopy[x, y] > 0)
-                            isNoZeroRemained = true;
-                    }
-                }
-            } while (isNoZeroRemained);
-            return graph;
-        }
-        private void UpdateAdjacencyTable()
+        private void UpdateAdjacencyTable([Optional] bool isGraphRebuild)
         {
             ClearGrid(GridAdjacencyTable);
 
             Graph graph;
-            if (graphWindow != null)
-                graph = graphWindow.Graph;
+            if (isGraphRebuild || graphWindow == null)
+                graph = GraphActions.CreateGraph_AdjacencyBased(MatrixAdjacencyTable, GraphTypeCurrent);
             else
-                graph = CreateGraph_AdjacencyBased();
+                graph = graphWindow.Graph;
 
             int nodeCount = graph.Count;
 
