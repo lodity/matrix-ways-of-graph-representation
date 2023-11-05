@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace CDM_Lab_3._1.Utils
 {
@@ -28,6 +29,20 @@ namespace CDM_Lab_3._1.Utils
             Grid.SetRow(label, coordinates.Item1);
             Grid.SetColumn(label, coordinates.Item2);
             return label;
+        }
+        public static Button CreateTableButton(string content, SolidColorBrush color, int fontSize, bool isVisible, Tuple<int, int> coordinates)
+        {
+            Button button = new()
+            {
+                Content = content,
+                Background = color,
+                FontSize = fontSize,
+                Padding = new Thickness(0, -8, 0, 0),
+                Visibility = isVisible ? Visibility.Visible : Visibility.Hidden
+            };
+            Grid.SetRow(button, coordinates.Item1);
+            Grid.SetColumn(button, coordinates.Item2);
+            return button;
         }
         public static void AddColumnDefenitions(Grid grid, int count)
         {
