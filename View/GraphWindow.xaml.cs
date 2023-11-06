@@ -156,8 +156,9 @@ namespace CDM_Lab_3._1.View
             }
             else
             {
-                GraphActions.GraphAddEdge(ref _graph, ref MatrixAdjacencyTable, controlNodeSelected_Add.index, nodeTo.index, edgeCount, GraphTypeCurrent);
+                EdgeType edgeType = GraphTypeCurrent == GraphType.Undirected ? EdgeType.Undirected : EdgeType.Directed;
                 bool isLoop = controlNodeSelected_Add == nodeTo;
+                _graph.Nodes[controlNodeSelected_Add.index].AddChild(_graph.Nodes[nodeTo.index], new Tuple<int, EdgeType>(edgeCount, isLoop ? EdgeType.Loop : edgeType));
                 int edgeOffset = _graph.Nodes[controlNodeSelected_Add.index].Edges.Count;
                 int edgeOffsetMax = MatrixAdjacencyTable[nodeTo.index, controlNodeSelected_Add.index];
 
@@ -167,7 +168,7 @@ namespace CDM_Lab_3._1.View
                 controlNodeSelected_Add.ControlEdges.Add(controlEdge);
                 nodeTo.ControlEdges.Add(controlEdge);
                 Field.Children.Add(controlEdge);
-                MainWindow.IncedenceAddEdge(controlNodeSelected_Add.index, nodeTo.index, MatrixAdjacencyTable);
+                MainWindow.IncedenceAddEdge(controlNodeSelected_Add.index, nodeTo.index);
                 controlNodeSelected_Add.SelectClear();
                 controlNodeSelected_Add = null;
             }

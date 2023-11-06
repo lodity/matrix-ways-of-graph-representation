@@ -281,12 +281,9 @@ namespace CDM_Lab_3._1
             ButtonAddNode.Visibility = Visibility.Visible;
             ButtonAddEdge.Visibility = Visibility.Visible;
         }
-        public void IncedenceAddEdge(int NodeIndexFrom, int NodeIndexTo, [Optional] short[,] matrixAdjacencyTable)
+        public void IncedenceAddEdge(int NodeIndexFrom, int NodeIndexTo)
         {
-            if (matrixAdjacencyTable == null)
-                GraphActions.GraphAddEdge(ref MatrixAdjacencyTable, NodeIndexFrom, NodeIndexTo, GraphTypeCurrent);
-            else
-                MatrixAdjacencyTable = matrixAdjacencyTable;
+            GraphActions.GraphAddEdge(ref MatrixAdjacencyTable, NodeIndexFrom, NodeIndexTo, GraphTypeCurrent);
 
             UpdateAdjacencyTable();
             if (GridIncidenceTable.ColumnDefinitions.Count < 2)
