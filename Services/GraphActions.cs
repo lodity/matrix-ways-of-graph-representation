@@ -58,22 +58,6 @@ namespace CDM_Lab_3._1.Services
             } while (isNoZeroRemained);
             return graph;
         }
-        public static void GraphAddNode(ref Graph? graph, ref short[,] MatrixAdjacencyTable)
-        {
-            graph?.AddNode();
-            int nodeCount = MatrixAdjacencyTable.GetLength(0) + 1;
-            short[,] MatrixAdjacencyTableCopy = new short[nodeCount, nodeCount];
-            for (int i = 0; i < nodeCount; i++)
-            {
-                for (int j = 0; j < nodeCount; j++)
-                {
-                    if (Math.Sqrt(MatrixAdjacencyTable.Length) > i && Math.Sqrt(MatrixAdjacencyTable.Length) > j)
-                        MatrixAdjacencyTableCopy[i, j] = MatrixAdjacencyTable[i, j];
-                    else MatrixAdjacencyTableCopy[i, j] = 0;
-                }
-            }
-            MatrixAdjacencyTable = MatrixAdjacencyTableCopy;
-        }
         public static void GraphAddNode(ref short[,] MatrixAdjacencyTable)
         {
             int nodeCount = MatrixAdjacencyTable.GetLength(0) + 1;
@@ -95,6 +79,16 @@ namespace CDM_Lab_3._1.Services
             EdgeType edgeType = GraphTypeCurrent == GraphType.Undirected ? EdgeType.Undirected : EdgeType.Directed;
             graph.Nodes[nodeIndexFrom].AddChild(graph.Nodes[nodeIndexTo], new Tuple<int, EdgeType>(edgeCount, isLoop ? EdgeType.Loop : edgeType));
 
+            if (GraphTypeCurrent == GraphType.Undirected)
+            {
+                MatrixAdjacencyTable[nodeIndexFrom, nodeIndexTo]++;
+                MatrixAdjacencyTable[nodeIndexTo, nodeIndexFrom]++;
+            }
+            else
+                MatrixAdjacencyTable[nodeIndexFrom, nodeIndexTo]++;
+        }
+        public static void GraphAddEdge(ref short[,] MatrixAdjacencyTable, int nodeIndexFrom, int nodeIndexTo, GraphType GraphTypeCurrent)
+        {
             if (GraphTypeCurrent == GraphType.Undirected)
             {
                 MatrixAdjacencyTable[nodeIndexFrom, nodeIndexTo]++;
