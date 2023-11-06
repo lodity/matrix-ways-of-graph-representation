@@ -89,7 +89,7 @@ namespace CDM_Lab_3._1.Services
         }
         public static void GraphAddEdge(ref short[,] MatrixAdjacencyTable, int nodeIndexFrom, int nodeIndexTo, GraphType GraphTypeCurrent)
         {
-            if (GraphTypeCurrent == GraphType.Undirected)
+            if (GraphTypeCurrent == GraphType.Undirected && nodeIndexFrom != nodeIndexTo)
             {
                 MatrixAdjacencyTable[nodeIndexFrom, nodeIndexTo]++;
                 MatrixAdjacencyTable[nodeIndexTo, nodeIndexFrom]++;

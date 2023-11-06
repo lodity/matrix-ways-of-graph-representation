@@ -219,7 +219,9 @@ namespace CDM_Lab_3._1
             for (int i = 1; i < GridIncidenceTable.RowDefinitions.Count - 1; i++)
             {
                 int textBoxValue;
-                if (ButtonAddEdgeSelected == buttonsList[i - 1])
+                if (ButtonAddEdgeSelected == (Button)sender && (Button)sender == buttonsList[i - 1])
+                    textBoxValue = 2;
+                else if (ButtonAddEdgeSelected == buttonsList[i - 1])
                     textBoxValue = 1;
                 else if (buttonsList[i - 1] == (Button)sender)
                     textBoxValue = GraphTypeCurrent == GraphType.Undirected ? 1 : -1;
