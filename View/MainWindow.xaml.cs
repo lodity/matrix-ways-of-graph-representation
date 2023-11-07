@@ -33,6 +33,13 @@ namespace CDM_Lab_3._1
         private readonly Button ButtonAddNode;
         private readonly Button ButtonAddEdge;
         private Button? ButtonAddEdgeSelected;
+
+        public enum IncidenceAccess
+        {
+            Adjacency,
+            Graph
+        }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -66,7 +73,7 @@ namespace CDM_Lab_3._1
             GridIncidenceTable.Children.Add(ButtonAddEdge);
             ButtonApplyNodesCount_Click();
             if (DEFAULT_ADJACENCY_TABLE_VALUE != 0)
-                UpdateIncidenceTable();
+                UpdateIncidenceTable(IncidenceAccess.Adjacency);
         }
         private static void ClearGrid(Grid grid)
         {
@@ -78,7 +85,7 @@ namespace CDM_Lab_3._1
         {
             ClearGrid(GridIncidenceTable);
             if (MatrixAdjacencyTable != null)
-                UpdateIncidenceTable();
+                UpdateIncidenceTable(IncidenceAccess.Adjacency);
             if (graphWindow != null)
                 graphWindow.GraphTypeCurrent = GraphTypeCurrent;
         }
@@ -115,17 +122,18 @@ namespace CDM_Lab_3._1
             if (GraphTypeCurrent == GraphType.Undirected && indexX != indexY)
                 AdjacencyTableTextBox[indexY, indexX].Text = textBoxSender.Text;
 
-            UpdateIncidenceTable();
+            UpdateIncidenceTable(IncidenceAccess.Adjacency);
         }
-        private void UpdateIncidenceTable()
+        private void UpdateIncidenceTable(IncidenceAccess accessType)
         {
             ClearGrid(GridIncidenceTable);
 
             Graph graph;
-            if (graphWindow != null)
+            if (graphWindow != null && graphWindow.Visibility == Visibility.Visible && accessType == IncidenceAccess.Graph)
                 graph = graphWindow.Graph;
             else
                 graph = GraphActions.CreateGraph_AdjacencyBased(MatrixAdjacencyTable, GraphTypeCurrent);
+
             NodeCount = graph.Count;
             IncedenceCreateBase();
             int edgeCount = 0;
@@ -382,7 +390,7 @@ namespace CDM_Lab_3._1
             GraphWindow graphWindow = ((GraphWindow)sender);
             Graph graph = graphWindow.Graph;
             NodeCount = graph.Count;
-            UpdateIncidenceTable();
+            UpdateIncidenceTable(IncidenceAccess.Graph);
             UpdateAdjacencyTable();
         }
 
