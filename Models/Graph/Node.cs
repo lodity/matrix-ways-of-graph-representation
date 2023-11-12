@@ -24,6 +24,27 @@ namespace CDM_Lab_3._1.Models.Graph
             if (children != null)
                 Children = (List<Tuple<int, Node>>)Children.Concat(children);
         }
+        public Node Copy()
+        {
+            Node newNode = new(Id)
+            {
+                Children = new List<Tuple<int, Node>>(this.Children),
+                Edges = new List<Tuple<int, EdgeType>>(this.Edges)
+            };
+            return newNode;
+        }
+        public bool HasChild(Node node)
+        {
+            foreach (var child in Children)
+                if (child.Item2 == node) return true;
+            return false;
+        }
+        public bool HasChild(int edge)
+        {
+            foreach (var child in Edges)
+                if (child.Item1 == edge) return true;
+            return false;
+        }
         public void AddChild(Node node, Tuple<int, EdgeType> edge)
         {
             Children.Add(new Tuple<int, Node>(node.Id, node));
