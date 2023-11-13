@@ -38,7 +38,7 @@ namespace CDM_Lab_3._1.Controls
             HalfOfWindowHeight = window.Y / 2;
             EdgeOffset = edgeOffset;
             Id = number;
-            EdgeName.Text = $"{number}";
+            EdgeName.Text = $"a{number}";
             nodeStart.Moved += UpdateHandler;
             nodeEnd.Moved += UpdateHandler;
 
