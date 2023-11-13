@@ -1,6 +1,8 @@
 ﻿using CDM_Lab_3._1.Models;
 using CDM_Lab_3._1.Models.Graph;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using static CDM_Lab_3._1.Models.Graph.Node;
 
 namespace CDM_Lab_3._1.Services
@@ -27,7 +29,14 @@ namespace CDM_Lab_3._1.Services
                             EdgeType edgeType = EdgeType.Directed;
                             switch (GraphTypeCurrent)
                             {
-                                case GraphType.Undirected: edgeType = EdgeType.Undirected; break;
+                                case GraphType.Undirected:
+                                    {
+                                        if (x == y)
+                                            edgeType = EdgeType.Loop;
+                                        else
+                                            edgeType = EdgeType.Undirected;
+                                    }
+                                    break;
                                 case GraphType.Mixed:
                                     {
                                         if (x == y)
@@ -78,6 +87,23 @@ namespace CDM_Lab_3._1.Services
             MatrixAdjacencyTable[nodeIndexFrom, nodeIndexTo]++;
             if (GraphTypeCurrent == GraphType.Undirected && nodeIndexFrom != nodeIndexTo)
                 MatrixAdjacencyTable[nodeIndexTo, nodeIndexFrom]++;
+        }
+        public static Graph DoSymetricGraph(Graph graph)
+        {
+
+            List<Node> graphList = new List<Node>(graph.Nodes).Select(el => el = el.Copy()).ToList();
+            foreach (Node node in graphList)
+                for (int i = 0; i < node.Children.Count; i++)
+                {
+                    node.Children[i] = new Tuple<int, Node>(node.Children[i].Item1, graphList.First(el => el.Id == node.Children[i].Item1));
+                    if (!node.Children[i].Item2.HasChild(node.Edges[i].Item1))
+                        node.Children[i].Item2.AddChild(node, new Tuple<int, EdgeType>(node.Edges[i].Item1, node.Edges[i].Item2));
+                }
+
+            Graph newGraph = new(0);
+            foreach (Node node in graphList)
+                newGraph.AddNode(node);
+            return newGraph;
         }
     }
 }

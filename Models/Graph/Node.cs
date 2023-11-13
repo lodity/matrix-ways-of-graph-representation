@@ -50,18 +50,34 @@ namespace CDM_Lab_3._1.Models.Graph
             Children.Add(new Tuple<int, Node>(node.Id, node));
             Edges.Add(edge);
         }
-        public void RemoveChild(int childIndex, Tuple<int, EdgeType> edge)
+        public void RemoveChild(int childId, int edgeId)
         {
             Tuple<int, Node>? childToRemove = null;
             foreach (var child in Children)
             {
-                if (child.Item1 == childIndex)
+                if (child.Item1 == childId)
                     childToRemove = child;
             }
             if (childToRemove != null)
+            {
                 Children.Remove(childToRemove);
-
-            Edges.Remove(edge);
+                Edges.Remove(Edges.First(el => el.Item1 == edgeId));
+            }
+        }
+        public List<int> RemoveAllLoops()
+        {
+            List<int> loops = new();
+            for (int i = 0; i < Edges.Count; i++)
+            {
+                if (Edges[i].Item2 == EdgeType.Loop)
+                {
+                    loops.Add(Edges[i].Item1);
+                    Edges.RemoveAt(i);
+                    Children.Remove(new Tuple<int, Node>(this.Id, this));
+                    i--;
+                }
+            }
+            return loops;
         }
     }
 }

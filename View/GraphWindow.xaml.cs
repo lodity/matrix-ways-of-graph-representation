@@ -4,6 +4,8 @@ using CDM_Lab_3._1.Models.Graph;
 using CDM_Lab_3._1.Services;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -176,7 +178,7 @@ namespace CDM_Lab_3._1.View
         private void Field_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             Point spawnPoint = e.GetPosition(this);
-            if (spawnPoint != new Point(0, 0) && e.ClickCount == 2 && e.ChangedButton == MouseButton.Left && sender != Field)
+            if (spawnPoint != new Point(0, 0) && spawnPoint.Y < 820 && e.ClickCount == 2 && e.ChangedButton == MouseButton.Left)
             {
                 _graph.AddNode();
                 GraphActions.GraphAddNode(ref MatrixAdjacencyTable);
@@ -188,8 +190,32 @@ namespace CDM_Lab_3._1.View
             }
         }
 
+        private void EulerSearch_Click(object sender, RoutedEventArgs e)
+        {
+            if (GraphTypeCurrent != GraphType.Undirected)
+            {
+                MessageBox.Show("Current graph type != undirected\nUnable to find the Euler cycle", "Warning");
+                return;
+            }
+            Graph graphSymetrical = GraphActions.DoSymetricGraph(_graph);
+            List<string> eulerCycle = Euler.FindEulerianCycle(graphSymetrical, out EulerType eulerType);
+            StringBuilder eulerResult = new();
+            foreach (string el in eulerCycle)
+                eulerResult.Append($"{el}\n");
+
+            MessageBox.Show(eulerResult.ToString(), eulerType.ToString());
+            eulerCycle = eulerCycle.Select(el => el.Split(" ")[2]).ToList();
+            foreach (ControlNode node in controlNodes)
+            {
+                foreach (var edge in node.ControlEdges)
+                {
+                    edge.EdgeName.Text = (eulerCycle.IndexOf(eulerCycle.First(el => el == $"a{edge.Id}")) + 1).ToString();
+                }
+            }
+        }
+
         // Window title bar actions
-        private void TopBar_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void TopBar_MouseDown(object sender, MouseButtonEventArgs e)
         {
             DragMove();
         }
