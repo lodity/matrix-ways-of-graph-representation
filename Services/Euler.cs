@@ -110,9 +110,23 @@ namespace CDM_Lab_3._1.Services
                         break;
                     }
                     tempChild = temp.Children[0].Item2;
-                    result.Add($"x{temp.Id}x{temp.Children[0].Item1} : a{temp.Edges[0].Item1}");
-                    tempChild.RemoveChild(temp.Id, temp.Edges[0].Item1);
-                    temp.RemoveChild(temp.Children[0].Item1, temp.Edges[0].Item1);
+                    int commonEdge = -1;
+                    foreach (var edge in temp.Edges)
+                    {
+                        if (commonEdge != -1)
+                            break;
+                        foreach (var childEdge in tempChild.Edges)
+                        {
+                            if (edge.Item1 == childEdge.Item1)
+                            {
+                                commonEdge = edge.Item1;
+                                break;
+                            }
+                        }
+                    }
+                    result.Add($"x{temp.Id}x{temp.Children[0].Item1} : a{commonEdge}");
+                    tempChild.RemoveChild(temp.Id, commonEdge);
+                    temp.RemoveChild(temp.Children[0].Item1, commonEdge);
                     temp = tempChild;
                     continue;
                 }
@@ -123,9 +137,23 @@ namespace CDM_Lab_3._1.Services
                     if ((temp.Children[i].Item2 != finish || countNonFinishChildren > 1) && CountPaths(temp, temp.Children[i].Item2) >= 2)
                     {
                         tempChild = temp.Children[i].Item2;
-                        result.Add($"x{temp.Id}x{temp.Children[i].Item1} : a{temp.Edges[i].Item1}");
-                        tempChild.RemoveChild(temp.Id, temp.Edges[i].Item1);
-                        temp.RemoveChild(tempChild.Id, temp.Edges[i].Item1);
+                        int commonEdge = -1;
+                        foreach (var edge in temp.Edges)
+                        {
+                            if (commonEdge != -1)
+                                break;
+                            foreach (var childEdge in tempChild.Edges)
+                            {
+                                if (edge.Item1 == childEdge.Item1)
+                                {
+                                    commonEdge = edge.Item1;
+                                    break;
+                                }
+                            }
+                        }
+                        result.Add($"x{temp.Id}x{temp.Children[i].Item1} : a{commonEdge}");
+                        tempChild.RemoveChild(temp.Id, commonEdge);
+                        temp.RemoveChild(tempChild.Id, commonEdge);
                         temp = tempChild;
                         break;
                     }

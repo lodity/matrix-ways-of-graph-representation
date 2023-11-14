@@ -199,6 +199,11 @@ namespace CDM_Lab_3._1.View
             }
             Graph graphSymetrical = GraphActions.DoSymetricGraph(_graph);
             List<string> eulerCycle = Euler.FindEulerianCycle(graphSymetrical, out EulerType eulerType);
+            if (eulerCycle.Count == 0)
+            {
+                MessageBox.Show("Euler cycle not found\n", "Warning");
+                return;
+            }
             StringBuilder eulerResult = new();
             foreach (string el in eulerCycle)
                 eulerResult.Append($"{el}\n");
