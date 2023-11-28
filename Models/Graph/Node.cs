@@ -8,6 +8,7 @@ namespace CDM_Lab_3._1.Models.Graph
     {
         public int Id;
         public string Name { get => "x" + Id; }
+        public int Color;
         public List<Tuple<int, Node>> Children = new();
         public List<Tuple<int, EdgeType>> Edges = new();
 

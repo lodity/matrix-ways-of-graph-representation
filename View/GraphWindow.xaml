@@ -21,6 +21,7 @@
         <Border x:Name="Footer" Height="20px" Background="AliceBlue">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                 <Button x:Name="EulerSearch" Click="EulerSearch_Click">Euler cycle/path</Button>
+                <Button x:Name="ColorGraph" Click="ColorGraph_Click">Color graph</Button>
             </StackPanel>
         </Border>
     </StackPanel>

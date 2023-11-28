@@ -28,7 +28,17 @@ namespace CDM_Lab_3._1.Controls
         double NodeEndPosX;
         double NodeEndPosY;
         readonly Vector vectorX = new(1, 0);
+        private int color;
 
+        public int Color
+        {
+            get => color;
+            set
+            {
+                color = value;
+                Line.Stroke = new BrushConverter().ConvertFrom(Utils.ColorUtils.colors[value]) as SolidColorBrush;
+            }
+        }
 
         public ControlEdge(ControlNode nodeStart, ControlNode nodeEnd, Point window, int number, double edgeOffset, int edgeOffsetMax, GraphType graphTypeCurrent, EdgeType edgeType)
         {

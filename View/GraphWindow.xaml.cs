@@ -198,6 +198,14 @@ namespace CDM_Lab_3._1.View
                 return;
             }
             Graph graphSymetrical = GraphActions.DoSymetricGraph(_graph);
+            foreach (Node node in graphSymetrical)
+            {
+                if (Euler.CountPaths(graphSymetrical.Nodes[0], node) == 0)
+                {
+                    MessageBox.Show("Euler cycle not found\n", "Warning");
+                    return;
+                }
+            }
             List<string> eulerCycle = Euler.FindEulerianCycle(graphSymetrical, out EulerType eulerType);
             if (eulerCycle.Count == 0)
             {
@@ -217,6 +225,37 @@ namespace CDM_Lab_3._1.View
                     edge.EdgeName.Text = (eulerCycle.IndexOf(eulerCycle.First(el => el == $"a{edge.Id}")) + 1).ToString();
                 }
             }
+        }
+        private void ColorGraph_Click(object sender, RoutedEventArgs e)
+        {
+            if (GraphTypeCurrent != GraphType.Undirected)
+            {
+                MessageBox.Show("Current graph type != undirected\nUnable to color graph", "Warning");
+                return;
+            }
+            Graph graphSymetrical = GraphActions.DoSymetricGraph(_graph);
+            GraphColoring.ColorNodes(graphSymetrical);
+            foreach (Node node in graphSymetrical)
+            {
+                foreach (ControlNode controlNode in controlNodes)
+                {
+                    if (node.Id == controlNode.index)
+                    {
+                        controlNode.Color = node.Color;
+                    }
+                }
+            }
+
+            List<ControlEdge> controlEdges = new();
+            foreach (ControlNode node in controlNodes)
+            {
+                foreach (ControlEdge controlEdge in node.ControlEdges)
+                {
+                    controlEdges.Add(controlEdge);
+                }
+            }
+
+            GraphColoring.ColorEdges(controlEdges);
         }
 
         // Window title bar actions

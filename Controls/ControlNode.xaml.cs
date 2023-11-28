@@ -21,6 +21,7 @@ namespace CDM_Lab_3._1.Controls
         private Point CurrentMousePosition;
         public int index;
         public Node node;
+        private int color;
         public List<ControlEdge> ControlEdges;
         public ControlNode(Node node, Point point)
         {
@@ -38,6 +39,15 @@ namespace CDM_Lab_3._1.Controls
         public Point Position
         {
             get => new(((TranslateTransform)RenderTransform).X, ((TranslateTransform)RenderTransform).Y);
+        }
+        public int Color
+        {
+            set
+            {
+                color = value;
+                NodeBorder.Background = new BrushConverter().ConvertFrom(Utils.ColorUtils.colors[color]) as SolidColorBrush;
+                Text.Foreground = new BrushConverter().ConvertFrom(Utils.ColorUtils.InvertHexColor(Utils.ColorUtils.colors[color])) as SolidColorBrush;
+            }
         }
         public enum NodeSelectType
         {
