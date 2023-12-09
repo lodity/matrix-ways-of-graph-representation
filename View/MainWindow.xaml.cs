@@ -134,7 +134,7 @@ namespace CDM_Lab_3._1
             else
                 graph = GraphActions.CreateGraph_AdjacencyBased(MatrixAdjacencyTable, GraphTypeCurrent);
 
-            NodeCount = graph.Count;
+            NodeCount = graph.NodeCount;
             IncedenceCreateBase();
             int edgeCount = 0;
             foreach (Node node in graph)
@@ -156,28 +156,28 @@ namespace CDM_Lab_3._1
                             int textBoxValue;
                             if (GraphTypeCurrent == GraphType.Undirected || GraphTypeCurrent == GraphType.Directed)
                             {
-                                if (node.Children[i].Item1 == node.Id && node.Id == k - 1)
+                                if (node.Children[i].Item2.Id == node.Id && node.Id == k - 1)
                                 {
                                     textBoxValue = 2;
                                     isLoop = true;
                                 }
                                 else if (!isLoop && k - 1 == node.Id)
                                     textBoxValue = 1;
-                                else if (!isLoop && k - 1 == node.Children[i].Item1)
+                                else if (!isLoop && k - 1 == node.Children[i].Item2.Id)
                                     textBoxValue = (node.Edges[i].Item2 == EdgeType.Directed ? -1 : 1);
                                 else
                                     textBoxValue = 0;
                             }
                             else
                             {
-                                if (node.Children[i].Item1 == node.Id && node.Id == k - 1)
+                                if (node.Children[i].Item2.Id == node.Id && node.Id == k - 1)
                                 {
                                     textBoxValue = 2;
                                     isLoop = true;
                                 }
-                                else if (!isLoop && k - 1 == node.Children[i].Item1 && node.Edges[i].Item2 == EdgeType.Directed)
+                                else if (!isLoop && k - 1 == node.Children[i].Item2.Id && node.Edges[i].Item2 == EdgeType.Directed)
                                     textBoxValue = -1;
-                                else if (!isLoop && k - 1 == node.Id || k - 1 == node.Children[i].Item1)
+                                else if (!isLoop && k - 1 == node.Id || k - 1 == node.Children[i].Item2.Id)
                                     textBoxValue = 1;
                                 else
                                     textBoxValue = 0;
@@ -389,7 +389,7 @@ namespace CDM_Lab_3._1
         {
             GraphWindow graphWindow = ((GraphWindow)sender);
             Graph graph = graphWindow.Graph;
-            NodeCount = graph.Count;
+            NodeCount = graph.NodeCount;
             UpdateIncidenceTable(IncidenceAccess.Graph);
             UpdateAdjacencyTable();
         }
@@ -404,7 +404,7 @@ namespace CDM_Lab_3._1
             else
                 graph = graphWindow.Graph;
 
-            int nodeCount = graph.Count;
+            int nodeCount = graph.NodeCount;
 
             MatrixAdjacencyTable = new short[nodeCount, nodeCount];
             AdjacencyTableTextBox = new TextBox[nodeCount, nodeCount];
@@ -430,7 +430,7 @@ namespace CDM_Lab_3._1
                         if (x != 0 && y != 0)
                             for (int i = 0; i < graph.Nodes[x - 1].Children.Count; i++)
                             {
-                                if (graph.Nodes[x - 1].Children[i].Item1 == graph.Nodes[y - 1].Id)
+                                if (graph.Nodes[x - 1].Children[i].Item2.Id == graph.Nodes[y - 1].Id)
                                 {
                                     value++;
                                     if (graph.Nodes[x - 1].Edges[i].Item2 == EdgeType.Undirected && graph.Nodes[x - 1].Id != graph.Nodes[y - 1].Id)

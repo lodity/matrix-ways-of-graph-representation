@@ -22,6 +22,8 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                 <Button x:Name="EulerSearch" Click="EulerSearch_Click">Euler cycle/path</Button>
                 <Button x:Name="ColorGraph" Click="ColorGraph_Click">Color graph</Button>
+                <Button x:Name="SetWeights" Click="SetWeights_Click">Set weights</Button>
+                <Button x:Name="FindSpanningTree" Click="FindSpanningTree_Click">Find spanning tree</Button>
             </StackPanel>
         </Border>
     </StackPanel>

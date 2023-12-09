@@ -32,7 +32,7 @@ namespace CDM_Lab_3._1.Services
         {
             foreach (var child in node.Children)
             {
-                Node adjacentNode = graph.Nodes.First(n => n.Id == child.Item1);
+                Node adjacentNode = graph.Nodes.First(n => n.Id == child.Item2.Id);
                 if (adjacentNode.Color == color)
                 {
                     return false;

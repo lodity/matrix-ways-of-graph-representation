@@ -9,8 +9,10 @@ namespace CDM_Lab_3._1.Models.Graph
         public int Id;
         public string Name { get => "x" + Id; }
         public int Color;
+        // <weight of child edge, child node>
         public List<Tuple<int, Node>> Children = new();
-        public List<Tuple<int, EdgeType>> Edges = new();
+        // <edge id, edge type, edge weight>
+        public List<Tuple<int, EdgeType, int>> Edges = new();
 
         public enum EdgeType
         {
@@ -30,7 +32,7 @@ namespace CDM_Lab_3._1.Models.Graph
             Node newNode = new(Id)
             {
                 Children = new List<Tuple<int, Node>>(this.Children),
-                Edges = new List<Tuple<int, EdgeType>>(this.Edges)
+                Edges = new List<Tuple<int, EdgeType, int>>(this.Edges)
             };
             return newNode;
         }
@@ -46,9 +48,9 @@ namespace CDM_Lab_3._1.Models.Graph
                 if (child.Item1 == edge) return true;
             return false;
         }
-        public void AddChild(Node node, Tuple<int, EdgeType> edge)
+        public void AddChild(Node node, Tuple<int, EdgeType, int> edge)
         {
-            Children.Add(new Tuple<int, Node>(node.Id, node));
+            Children.Add(new Tuple<int, Node>(1, node));
             Edges.Add(edge);
         }
         public void RemoveChild(int childId, int edgeId)
@@ -56,7 +58,7 @@ namespace CDM_Lab_3._1.Models.Graph
             Tuple<int, Node>? childToRemove = null;
             foreach (var child in Children)
             {
-                if (child.Item1 == childId)
+                if (child.Item2.Id == childId)
                     childToRemove = child;
             }
             if (childToRemove != null)
@@ -74,11 +76,16 @@ namespace CDM_Lab_3._1.Models.Graph
                 {
                     loops.Add(Edges[i].Item1);
                     Edges.RemoveAt(i);
-                    Children.Remove(new Tuple<int, Node>(this.Id, this));
+                    Children.Remove(Children.First(el => el.Item2 == this));
                     i--;
                 }
             }
             return loops;
+        }
+        public void SetWeight(int edgeId, int weight)
+        {
+            int foundEdgeId = Edges.FindIndex(el => el.Item1 == edgeId);
+            Edges[foundEdgeId] = new Tuple<int, EdgeType, int>(edgeId, Edges[foundEdgeId].Item2, weight);
         }
     }
 }

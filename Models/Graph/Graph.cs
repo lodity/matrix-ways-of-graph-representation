@@ -6,7 +6,18 @@ namespace CDM_Lab_3._1.Models.Graph
     public class Graph : IEnumerable
     {
         public List<Node> Nodes = new();
-        public int Count { get => Nodes.Count; }
+        public int NodeCount { get => Nodes.Count; }
+        public int EdgeCount
+        {
+            get
+            {
+                int count = 0;
+                foreach (var node in Nodes)
+                    foreach (var child in node.Children)
+                        count++;
+                return count;
+            }
+        }
         public Graph(int nodeCount)
         {
             for (int i = 0; i < nodeCount; i++)
@@ -30,7 +41,7 @@ namespace CDM_Lab_3._1.Models.Graph
             {
                 for (int j = 0; j < Nodes[i].Children.Count; j++)
                 {
-                    if (Nodes[i].Children[j].Item1 == nodeIndex)
+                    if (Nodes[i].Children[j].Item2.Id == nodeIndex)
                         Nodes[i].Children.RemoveAt(j);
                 }
             }

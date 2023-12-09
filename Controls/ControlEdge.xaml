@@ -42,6 +42,9 @@
                 </Path.Data>
             </Path>
         </Canvas>
-        <TextBlock x:Name="EdgeName" FontSize="12" FontWeight="Bold" Background="Blue" Text="a0" Foreground="White" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Height="18" Width="24" MouseEnter="EdgeName_MouseEnter" MouseLeave="EdgeName_MouseLeave"/>
+        <StackPanel x:Name="EdgeTextBlock" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+            <TextBlock x:Name="EdgeName" FontSize="12" FontWeight="Bold" Background="Blue" Text="a0" Foreground="White" TextAlignment="Center" Height="18" Width="24" MouseEnter="EdgeName_MouseEnter" MouseLeave="EdgeName_MouseLeave"/>
+            <TextBlock x:Name="EdgeWeight" FontSize="12" FontWeight="Bold" Background="Blue" Text="1" Foreground="White" TextAlignment="Center" Height="18" Width="24"/>
+        </StackPanel>
     </Grid>
 </UserControl>

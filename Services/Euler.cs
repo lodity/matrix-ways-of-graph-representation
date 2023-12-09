@@ -22,7 +22,7 @@ namespace CDM_Lab_3._1.Services
                 int nodeChildrenCount = node.Children.Count;
                 foreach (var child in node.Children)
                 {
-                    if (child.Item1 == node.Id)
+                    if (child.Item2.Id == node.Id)
                         nodeChildrenCount--;
                 }
                 if (nodeChildrenCount % 2 == 0)
@@ -34,7 +34,7 @@ namespace CDM_Lab_3._1.Services
                     else finish = node;
                 }
             }
-            if (countEvenEdges == graph.Count)
+            if (countEvenEdges == graph.NodeCount)
             {
                 start = graph.Nodes[0];
                 finish = graph.Nodes[0];
@@ -82,7 +82,7 @@ namespace CDM_Lab_3._1.Services
 
             Node start = graph.Nodes[0];
             Node finish = graph.Nodes[0];
-            if (CountNodesWithEvenEdges(graph, out start, out finish) < graph.Count - 2)
+            if (CountNodesWithEvenEdges(graph, out start, out finish) < graph.NodeCount - 2)
             {
                 eulerType = EulerType.None;
                 return result;
@@ -106,7 +106,7 @@ namespace CDM_Lab_3._1.Services
                 {
                     if (temp.Children[0].Item2 == finish && temp.Children.Count == 0)
                     {
-                        result.Add($"x{temp.Id}x{temp.Children[0].Item1} : {temp.Edges[0].Item1}");
+                        result.Add($"x{temp.Id}x{temp.Children[0].Item2.Id} : {temp.Edges[0].Item1}");
                         break;
                     }
                     tempChild = temp.Children[0].Item2;
@@ -124,9 +124,9 @@ namespace CDM_Lab_3._1.Services
                             }
                         }
                     }
-                    result.Add($"x{temp.Id}x{temp.Children[0].Item1} : a{commonEdge}");
+                    result.Add($"x{temp.Id}x{temp.Children[0].Item2.Id} : a{commonEdge}");
                     tempChild.RemoveChild(temp.Id, commonEdge);
-                    temp.RemoveChild(temp.Children[0].Item1, commonEdge);
+                    temp.RemoveChild(temp.Children[0].Item2.Id, commonEdge);
                     temp = tempChild;
                     continue;
                 }
@@ -151,7 +151,7 @@ namespace CDM_Lab_3._1.Services
                                 }
                             }
                         }
-                        result.Add($"x{temp.Id}x{temp.Children[i].Item1} : a{commonEdge}");
+                        result.Add($"x{temp.Id}x{temp.Children[i].Item2.Id} : a{commonEdge}");
                         tempChild.RemoveChild(temp.Id, commonEdge);
                         temp.RemoveChild(tempChild.Id, commonEdge);
                         temp = tempChild;

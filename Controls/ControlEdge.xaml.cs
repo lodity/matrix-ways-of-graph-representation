@@ -29,6 +29,18 @@ namespace CDM_Lab_3._1.Controls
         double NodeEndPosY;
         readonly Vector vectorX = new(1, 0);
         private int color;
+        private int weight;
+
+        public int Weight
+        {
+            get => weight;
+            set
+            {
+                NodeStart.node.SetWeight(Id, value);
+                weight = value;
+                SetWeight();
+            }
+        }
 
         public int Color
         {
@@ -40,7 +52,7 @@ namespace CDM_Lab_3._1.Controls
             }
         }
 
-        public ControlEdge(ControlNode nodeStart, ControlNode nodeEnd, Point window, int number, double edgeOffset, int edgeOffsetMax, GraphType graphTypeCurrent, EdgeType edgeType)
+        public ControlEdge(ControlNode nodeStart, ControlNode nodeEnd, Point window, int number, double edgeOffset, int edgeOffsetMax, GraphType graphTypeCurrent, EdgeType edgeType, int weight)
         {
             InitializeComponent();
 
@@ -57,7 +69,7 @@ namespace CDM_Lab_3._1.Controls
             NodeStart = nodeStart;
             NodeEnd = nodeEnd;
             EdgeOffsetMax = edgeOffsetMax;
-
+            this.weight = weight;
 
             UpdatePosition();
         }
@@ -72,10 +84,6 @@ namespace CDM_Lab_3._1.Controls
             EdgeStart.StartPoint = new Point(NodeStartPosX + HalfOfWindowWidth, NodeStartPosY + HalfOfWindowHeight);
             if (edgeType == EdgeType.Loop)
             {
-                //if (EdgeOffset == -1)
-                //{
-                //    EdgeOffset = EdgeOffsetMax;
-                //}
                 double EdgeEndSizeCoeff = EdgeOffset * 1.8;
                 EdgeEnd.IsLargeArc = true;
                 EdgeEnd.Point = new(NodeStartPosX + HalfOfWindowWidth + 5, NodeStartPosY + HalfOfWindowHeight + 5);
@@ -98,14 +106,7 @@ namespace CDM_Lab_3._1.Controls
             else
             {
                 double edgeEndRadius;
-                //if (EdgeOffset == -1)
-                //{
-                //    edgeEndRadius = 500 + (EdgeOffsetMax) * 300;
-                //}
-                //else
-                {
-                    edgeEndRadius = 700 + EdgeOffset / EdgeOffsetMax * 1200;
-                }
+                edgeEndRadius = 700 + EdgeOffset / EdgeOffsetMax * 1200;
                 EdgeEnd.Size = new Size(edgeEndRadius, edgeEndRadius);
 
                 EdgeEnd.Point = new(NodeEndPosX + HalfOfWindowWidth, NodeEndPosY + HalfOfWindowHeight);
@@ -149,7 +150,7 @@ namespace CDM_Lab_3._1.Controls
         }
         private void SetTextPoint(Point pos)
         {
-            EdgeName.RenderTransform = new TranslateTransform
+            EdgeTextBlock.RenderTransform = new TranslateTransform
             {
                 X = pos.X,
                 Y = pos.Y
@@ -160,6 +161,19 @@ namespace CDM_Lab_3._1.Controls
             ArrowStart.StartPoint = new(start.X + HalfOfWindowWidth, start.Y + HalfOfWindowHeight);
             ArrowEnd.Point = new(end.X + HalfOfWindowWidth, end.Y + HalfOfWindowHeight);
         }
+        private void SetWeight()
+        {
+            EdgeWeight.Text = Weight.ToString();
+        }
+        public void SetSpanningEdge()
+        {
+            Line.Stroke = Brushes.Red;
+        }
+        public void RemoveSpanningEdge()
+        {
+            Line.Stroke = Brushes.Blue;
+        }
+
         private void EdgeName_MouseEnter(object sender, MouseEventArgs e) { Panel.SetZIndex(this, 999); }
         private void EdgeName_MouseLeave(object sender, MouseEventArgs e) { Panel.SetZIndex(this, 1); }
     }

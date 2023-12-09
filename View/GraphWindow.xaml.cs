@@ -21,14 +21,12 @@ namespace CDM_Lab_3._1.View
         MainWindow MainWindow;
         public event EventHandler? GraphChanged;
         ControlNode? controlNodeSelected_Add;
-        ControlNode? controlNodeSelected_Remove;
         readonly Random randomGlobal = new();
         Graph _graph;
         public GraphType GraphTypeCurrent;
         readonly int horizontalSectorsMax;
         readonly int verticalSectorsMax;
         int edgeCount;
-        List<int> edgeAvailableIds;
         bool[,] nodeSectors;
         public short[,] MatrixAdjacencyTable;
         List<ControlNode> controlNodes;
@@ -37,7 +35,6 @@ namespace CDM_Lab_3._1.View
             InitializeComponent();
 
             MainWindow = mainWindow;
-            edgeAvailableIds = new List<int>();
             _graph = graph;
             GraphTypeCurrent = graphTypeCurrent;
             controlNodes = new List<ControlNode>();
@@ -57,7 +54,6 @@ namespace CDM_Lab_3._1.View
                 _graph = value;
                 Field.Children.Clear();
                 controlNodes = new List<ControlNode>();
-                edgeAvailableIds = new List<int>();
                 nodeSectors = new bool[horizontalSectorsMax, verticalSectorsMax];
 
                 BuildNodes();
@@ -71,7 +67,7 @@ namespace CDM_Lab_3._1.View
         }
         private void BuildNodes()
         {
-            for (int i = 0; i < _graph.Count; i++)
+            for (int i = 0; i < _graph.NodeCount; i++)
             {
                 int horizontalPos = RandomPosition(horizontalSectorsMax);
                 int verticalPos = RandomPosition(verticalSectorsMax);
@@ -123,15 +119,15 @@ namespace CDM_Lab_3._1.View
                 int edgeMultipleOffsetMax = 0;
                 foreach (var child in children)
                 {
-                    if (!edges.TryGetValue(child.Item1, out int edgeOffset))
+                    if (!edges.TryGetValue(child.Item2.Id, out int edgeOffset))
                     {
-                        edges.Add(child.Item1, 0);
+                        edges.Add(child.Item2.Id, 0);
                         edgeOffset = 0;
                         edgeOffsetList.Add(edgeOffset);
                     }
                     else
                     {
-                        edgeOffset = ++edges[child.Item1];
+                        edgeOffset = ++edges[child.Item2.Id];
                         edgeOffsetList.Add(edgeOffset);
                     }
                     edgeMultipleOffsetMax++;
@@ -141,7 +137,7 @@ namespace CDM_Lab_3._1.View
                     bool isLoop = children[j].Item2.Id == _graph.Nodes[controlNodes[i].index].Id;
                     ControlEdge controlEdge = new(controlNodes[i], controlNodes[children[j].Item2.Id], new Point(Field.Width, Field.Height),
                         edgeCount++, edgeOffsetList[j], edgeMultipleOffsetMax, GraphTypeCurrent,
-                        isLoop ? EdgeType.Loop : _graph.Nodes[i].Edges[j].Item2);
+                        isLoop ? EdgeType.Loop : _graph.Nodes[i].Edges[j].Item2, _graph.Nodes[i].Edges[j].Item3);
                     controlNodes[i].ControlEdges.Add(controlEdge);
                     controlNodes[children[j].Item2.Id].ControlEdges.Add(controlEdge);
                     Field.Children.Add(controlEdge);
@@ -160,13 +156,13 @@ namespace CDM_Lab_3._1.View
             {
                 EdgeType edgeType = GraphTypeCurrent == GraphType.Undirected ? EdgeType.Undirected : EdgeType.Directed;
                 bool isLoop = controlNodeSelected_Add == nodeTo;
-                _graph.Nodes[controlNodeSelected_Add.index].AddChild(_graph.Nodes[nodeTo.index], new Tuple<int, EdgeType>(edgeCount, isLoop ? EdgeType.Loop : edgeType));
+                _graph.Nodes[controlNodeSelected_Add.index].AddChild(_graph.Nodes[nodeTo.index], new Tuple<int, EdgeType, int>(edgeCount, isLoop ? EdgeType.Loop : edgeType, 1));
                 int edgeOffset = _graph.Nodes[controlNodeSelected_Add.index].Edges.Count;
                 int edgeOffsetMax = MatrixAdjacencyTable[nodeTo.index, controlNodeSelected_Add.index];
 
                 ControlEdge controlEdge = new(controlNodeSelected_Add, nodeTo, new Point(Field.Width, Field.Height),
                          edgeCount++, edgeOffset, edgeOffsetMax == 0 ? ++edgeOffsetMax : edgeOffsetMax, GraphTypeCurrent,
-                        isLoop ? EdgeType.Loop : _graph.Nodes[controlNodeSelected_Add.index].Edges[^1].Item2);
+                        isLoop ? EdgeType.Loop : _graph.Nodes[controlNodeSelected_Add.index].Edges[^1].Item2, 1);
                 controlNodeSelected_Add.ControlEdges.Add(controlEdge);
                 nodeTo.ControlEdges.Add(controlEdge);
                 Field.Children.Add(controlEdge);
@@ -256,6 +252,47 @@ namespace CDM_Lab_3._1.View
             }
 
             GraphColoring.ColorEdges(controlEdges);
+        }
+
+        private void FindSpanningTree_Click(object sender, RoutedEventArgs e)
+        {
+            if (GraphTypeCurrent != GraphType.Undirected)
+            {
+                MessageBox.Show("Current graph type != undirected\nUnable to find the spanning tree", "Warning");
+                return;
+            }
+            Graph graphSymetrical = GraphActions.DoSymetricGraph(_graph);
+            SpanningTree spanningTree = new(graphSymetrical);
+            List<int> edges = spanningTree.GetMinimumSpanningTreeEdgeIds();
+            List<ControlEdge> controlEdges = new();
+
+            foreach (ControlNode controlNode in controlNodes)
+            {
+                foreach (ControlEdge controlEdge in controlNode.ControlEdges)
+                {
+                    if (!controlEdges.Contains(controlEdge))
+                    {
+                        controlEdge.RemoveSpanningEdge();
+                        controlEdges.Add(controlEdge);
+                    }
+                }
+            }
+            foreach (int edge in edges)
+            {
+                foreach (ControlEdge controlEdge in controlEdges)
+                {
+                    if (controlEdge.Id == edge)
+                    {
+                        controlEdge.SetSpanningEdge();
+                    }
+                }
+            }
+        }
+
+        private void SetWeights_Click(object sender, RoutedEventArgs e)
+        {
+            SetWeightsWindow setWeightsWindow = new(controlNodes);
+            setWeightsWindow.Show();
         }
 
         // Window title bar actions
