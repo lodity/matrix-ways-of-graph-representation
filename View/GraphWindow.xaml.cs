@@ -4,6 +4,7 @@ using CDM_Lab_3._1.Models.Graph;
 using CDM_Lab_3._1.Services;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -156,7 +157,7 @@ namespace CDM_Lab_3._1.View
             {
                 EdgeType edgeType = GraphTypeCurrent == GraphType.Undirected ? EdgeType.Undirected : EdgeType.Directed;
                 bool isLoop = controlNodeSelected_Add == nodeTo;
-                _graph.Nodes[controlNodeSelected_Add.index].AddChild(_graph.Nodes[nodeTo.index], new Tuple<int, EdgeType, int>(edgeCount, isLoop ? EdgeType.Loop : edgeType, 1));
+                _graph.Nodes[controlNodeSelected_Add.index].AddChild(_graph.Nodes[nodeTo.index], new Tuple<int, EdgeType, int, Node>(edgeCount, isLoop ? EdgeType.Loop : edgeType, 1, nodeTo.node));
                 int edgeOffset = _graph.Nodes[controlNodeSelected_Add.index].Edges.Count;
                 int edgeOffsetMax = MatrixAdjacencyTable[nodeTo.index, controlNodeSelected_Add.index];
 
@@ -272,7 +273,7 @@ namespace CDM_Lab_3._1.View
                 {
                     if (!controlEdges.Contains(controlEdge))
                     {
-                        controlEdge.RemoveSpanningEdge();
+                        controlEdge.RemoveHighlight();
                         controlEdges.Add(controlEdge);
                     }
                 }
@@ -283,10 +284,123 @@ namespace CDM_Lab_3._1.View
                 {
                     if (controlEdge.Id == edge)
                     {
-                        controlEdge.SetSpanningEdge();
+                        controlEdge.AddHighlight();
                     }
                 }
             }
+        }
+
+        private void DepthFirstSearch_Click(object sender, RoutedEventArgs e)
+        {
+            Graph graphSymetrical = GraphActions.DoSymetricGraph(_graph);
+            List<int> nodeIds = GraphTraversal.DepthFirstSearch(graphSymetrical, 0);
+
+            for (int i = 0; i < nodeIds.Count; i++)
+            {
+                foreach (ControlNode controlNode in controlNodes)
+                {
+                    if (controlNode.index == nodeIds[i])
+                        controlNode.Text.Text = $"{i}";
+                }
+            }
+        }
+
+        private void BreadthFirstSearch_Click(object sender, RoutedEventArgs e)
+        {
+            Graph graphSymetrical = GraphActions.DoSymetricGraph(_graph);
+            List<int> nodeIds = GraphTraversal.BreadthFirstSearch(graphSymetrical, 0);
+
+            for (int i = 0; i < nodeIds.Count; i++)
+            {
+                foreach (ControlNode controlNode in controlNodes)
+                {
+                    if (controlNode.index == nodeIds[i])
+                        controlNode.Text.Text = $"{i}";
+                }
+            }
+        }
+
+        private void BringBackNodesID_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (ControlNode controlNode in controlNodes)
+                controlNode.Text.Text = $"x{controlNode.index}";
+
+            List<ControlEdge> controlEdges = new();
+
+            foreach (ControlNode controlNode in controlNodes)
+            {
+                foreach (ControlEdge controlEdge in controlNode.ControlEdges)
+                {
+                    if (!controlEdges.Contains(controlEdge))
+                    {
+                        controlEdge.RemoveHighlight();
+                        controlEdges.Add(controlEdge);
+                    }
+                }
+            }
+
+            MinimalWeightBorder.BorderThickness = new(0);
+            MinimalWeight.Text = "";
+        }
+
+        private void FindShortestPath_Click(object sender, RoutedEventArgs e)
+        {
+            if (FindPathFrom.Text == "" || FindPathTo.Text == "")
+            {
+                MessageBox.Show("Fill the boxes\n", "Warning");
+                return;
+            }
+            if (int.Parse(FindPathFrom.Text) >= _graph.NodeCount || int.Parse(FindPathTo.Text) >= _graph.NodeCount)
+            {
+                MessageBox.Show("Value in the boxes is out of the limits\n", "Warning");
+                return;
+            }
+            if (FindPathFrom.Text == FindPathTo.Text)
+            {
+                MessageBox.Show($"From == To\nPath: x{int.Parse(FindPathFrom.Text)}", "Info");
+                return;
+            }
+            if (GraphTypeCurrent != GraphType.Directed)
+            {
+                MessageBox.Show("Current graph type != directed\nUnable to find the shortest path", "Warning");
+                return;
+            }
+            List<Tuple<int, int>> path = ShortestPathFinder.FindShortestPath(int.Parse(FindPathFrom.Text), int.Parse(FindPathTo.Text), _graph);
+
+            if (path.Count == 0)
+            {
+                MessageBox.Show($"Path doesn't exist", "Info");
+                return;
+            }
+
+
+            List<ControlEdge> controlEdges = new();
+
+            foreach (ControlNode controlNode in controlNodes)
+            {
+                foreach (ControlEdge controlEdge in controlNode.ControlEdges)
+                {
+                    if (!controlEdges.Contains(controlEdge))
+                    {
+                        controlEdge.RemoveHighlight();
+                        controlEdges.Add(controlEdge);
+                    }
+                }
+            }
+            foreach (var item in path)
+                foreach (var edge in controlEdges)
+                    if (edge.Id == item.Item1)
+                        edge.AddHighlight();
+
+            MinimalWeightBorder.BorderThickness = new(1);
+            MinimalWeight.Text = "Minimal weight = " + path.Aggregate(0, (acc, item) => acc + item.Item2).ToString();
+
+            foreach (var item in path)
+            {
+                Debug.WriteLine(item);
+            }
+            Debug.WriteLine("===========");
+
         }
 
         private void SetWeights_Click(object sender, RoutedEventArgs e)

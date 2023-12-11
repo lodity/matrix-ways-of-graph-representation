@@ -49,10 +49,6 @@ namespace CDM_Lab_3._1.Controls
                 Text.Foreground = new BrushConverter().ConvertFrom(Utils.ColorUtils.InvertHexColor(Utils.ColorUtils.colors[color])) as SolidColorBrush;
             }
         }
-        public enum NodeSelectType
-        {
-            Add, Remove
-        }
         private void NodeBorder_MouseMove(object sender, MouseEventArgs e)
         {
             Vector diff = e.GetPosition(Parent as Window) - CurrentMousePosition;

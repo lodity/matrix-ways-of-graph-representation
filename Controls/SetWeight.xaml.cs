@@ -1,7 +1,5 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using static CDM_Lab_3._1.Models.Graph.Node;
 
 namespace CDM_Lab_3._1.Controls
 {
@@ -24,7 +22,7 @@ namespace CDM_Lab_3._1.Controls
 
         private void Increment_Click(object sender, RoutedEventArgs e)
         {
-            foreach (Tuple<int, EdgeType, int> edge in controlEdge.NodeStart.node.Edges)
+            foreach (var edge in controlEdge.NodeStart.node.Edges)
             {
                 if (controlEdge.NodeStart.node.HasChild(edge.Item1))
                 {
@@ -37,7 +35,7 @@ namespace CDM_Lab_3._1.Controls
         private void Decrement_Click(object sender, RoutedEventArgs e)
         {
             if (controlEdge.Weight == 0) return;
-            foreach (Tuple<int, EdgeType, int> edge in controlEdge.NodeStart.node.Edges)
+            foreach (var edge in controlEdge.NodeStart.node.Edges)
             {
                 if (controlEdge.NodeStart.node.HasChild(edge.Item1))
                 {

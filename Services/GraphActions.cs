@@ -56,7 +56,7 @@ namespace CDM_Lab_3._1.Services
                                     }
                                     break;
                             }
-                            graph.Nodes[x].AddChild(graph.Nodes[y], new Tuple<int, EdgeType, int>(edgeCount++, edgeType, 1));
+                            graph.Nodes[x].AddChild(graph.Nodes[y], new Tuple<int, EdgeType, int, Node>(edgeCount++, edgeType, 1, graph.Nodes[y]));
                         }
                         if (GraphTypeCurrent != GraphType.Mixed)
                             AdjacencyTableCopy[x, y]--;
@@ -97,7 +97,7 @@ namespace CDM_Lab_3._1.Services
                 {
                     node.Children[i] = new Tuple<int, Node>(node.Children[i].Item1, graphList.First(el => el.Id == node.Children[i].Item2.Id));
                     if (!node.Children[i].Item2.HasChild(node.Edges[i].Item1))
-                        node.Children[i].Item2.AddChild(node, new Tuple<int, EdgeType, int>(node.Edges[i].Item1, node.Edges[i].Item2, node.Edges[i].Item3));
+                        node.Children[i].Item2.AddChild(node, new Tuple<int, EdgeType, int, Node>(node.Edges[i].Item1, node.Edges[i].Item2, node.Edges[i].Item3, node.Edges[i].Item4));
                 }
 
             Graph newGraph = new(0);

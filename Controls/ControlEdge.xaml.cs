@@ -165,13 +165,15 @@ namespace CDM_Lab_3._1.Controls
         {
             EdgeWeight.Text = Weight.ToString();
         }
-        public void SetSpanningEdge()
+        public void AddHighlight()
         {
             Line.Stroke = Brushes.Red;
+            Arrow.Stroke = Brushes.Red;
         }
-        public void RemoveSpanningEdge()
+        public void RemoveHighlight()
         {
             Line.Stroke = Brushes.Blue;
+            Arrow.Stroke = Brushes.Blue;
         }
 
         private void EdgeName_MouseEnter(object sender, MouseEventArgs e) { Panel.SetZIndex(this, 999); }

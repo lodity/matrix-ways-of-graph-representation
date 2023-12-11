@@ -11,8 +11,8 @@ namespace CDM_Lab_3._1.Models.Graph
         public int Color;
         // <weight of child edge, child node>
         public List<Tuple<int, Node>> Children = new();
-        // <edge id, edge type, edge weight>
-        public List<Tuple<int, EdgeType, int>> Edges = new();
+        // <edge id, edge type, edge weight, nodeTo>
+        public List<Tuple<int, EdgeType, int, Node>> Edges = new();
 
         public enum EdgeType
         {
@@ -32,7 +32,7 @@ namespace CDM_Lab_3._1.Models.Graph
             Node newNode = new(Id)
             {
                 Children = new List<Tuple<int, Node>>(this.Children),
-                Edges = new List<Tuple<int, EdgeType, int>>(this.Edges)
+                Edges = new List<Tuple<int, EdgeType, int, Node>>(this.Edges)
             };
             return newNode;
         }
@@ -48,7 +48,7 @@ namespace CDM_Lab_3._1.Models.Graph
                 if (child.Item1 == edge) return true;
             return false;
         }
-        public void AddChild(Node node, Tuple<int, EdgeType, int> edge)
+        public void AddChild(Node node, Tuple<int, EdgeType, int, Node> edge)
         {
             Children.Add(new Tuple<int, Node>(1, node));
             Edges.Add(edge);
@@ -82,10 +82,23 @@ namespace CDM_Lab_3._1.Models.Graph
             }
             return loops;
         }
+        // <edge id, edge weight>
+        public Tuple<int, int> LessWeightedEdge(Node node)
+        {
+            // <edge id, edge weight>
+            Tuple<int, int> Edge = Edges.Aggregate(new Tuple<int, int>(-1, int.MaxValue), (acc, el) =>
+            {
+                if (el.Item4 == node && el.Item3 < acc.Item2)
+                    return new Tuple<int, int>(el.Item1, el.Item3);
+                else
+                    return acc;
+            });
+            return Edge;
+        }
         public void SetWeight(int edgeId, int weight)
         {
             int foundEdgeId = Edges.FindIndex(el => el.Item1 == edgeId);
-            Edges[foundEdgeId] = new Tuple<int, EdgeType, int>(edgeId, Edges[foundEdgeId].Item2, weight);
+            Edges[foundEdgeId] = new Tuple<int, EdgeType, int, Node>(edgeId, Edges[foundEdgeId].Item2, weight, Edges[foundEdgeId].Item4);
         }
     }
 }

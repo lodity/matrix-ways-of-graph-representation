@@ -24,6 +24,15 @@
                 <Button x:Name="ColorGraph" Click="ColorGraph_Click">Color graph</Button>
                 <Button x:Name="SetWeights" Click="SetWeights_Click">Set weights</Button>
                 <Button x:Name="FindSpanningTree" Click="FindSpanningTree_Click">Find spanning tree</Button>
+                <Button x:Name="DepthFirstSearch" Click="DepthFirstSearch_Click">DepthFirstSearch</Button>
+                <Button x:Name="BreadthFirstSearch" Click="BreadthFirstSearch_Click">BreadthFirstSearch</Button>
+                <Button x:Name="BringBackNodesID" Click="BringBackNodesID_Click" Margin="0 0 12 0">Bring back nodes ID</Button>
+                <TextBox x:Name="FindPathFrom" Width="30"></TextBox>
+                <Button x:Name="FindShortestPath" Click="FindShortestPath_Click">Find shortest path</Button>
+                <TextBox x:Name="FindPathTo" Width="30"></TextBox>
+                <Border x:Name="MinimalWeightBorder" BorderBrush="Black">
+                    <TextBlock x:Name="MinimalWeight" Padding="4 0 4 0"></TextBlock>
+                </Border>
             </StackPanel>
         </Border>
     </StackPanel>
